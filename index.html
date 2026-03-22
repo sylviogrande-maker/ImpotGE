@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Impôts GE 2025">
+<meta name="apple-mobile-web-app-title" content="ImpôtGE">
 <meta name="theme-color" content="#07090f">
-<link rel="apple-touch-icon" href="icon.png">
+<title>ImpôtGE</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -171,7 +171,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 <body>
 <div class="hdr">
   <div class="hrow">
-    <div class="htitle">Impôts <em>GE <span id="yearTitle"></span></em></div>
+    <div class="htitle">Impôt<em>GE</em></div>
     <div class="hbadge" id="hBadge">0 / 0</div>
   </div>
   <div class="ps-row"><span class="ps-lbl">Checklist complétée</span><span class="ps-pct" id="psPct">0%</span></div>
@@ -188,7 +188,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
     <div class="slabel">Échéance</div>
     <div class="dl-card">
       <div class="dl-top">
-        <div><div class="dl-badge">Déclaration fiscale</div><div class="dl-name">Genève 2025</div></div>
+        <div><div class="dl-badge">Déclaration fiscale</div><div class="dl-name">Genève <span id="dlYear"></span></div></div>
         <div class="dl-cnt"><div class="dl-num" id="dlDays">—</div><div class="dl-unit">jours</div></div>
       </div>
       <div class="dl-date">Date limite : <strong id="dlDateText">31 mars 2026</strong></div>
@@ -199,7 +199,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
     <div id="homeChecklist"></div>
     <div class="slabel">Documents récents</div>
     <div id="homeDocs"></div>
-    <div id="homePdfBanner" style="margin-top:16px"></div>
+    
   </div>
   <div class="view" id="view-cl"><div id="fullCL"></div></div>
   <div class="view" id="view-docs">
@@ -217,12 +217,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 <div class="overlay" id="overlay" onclick="overlayBg(event)">
   <div class="modal"><div class="mhandle"></div><div id="mbody"></div></div>
 </div>
-<div class="pdf-ov" id="pdfOv">
-  <div class="pdf-ov-ico spin" id="pdfOvIco">⚙️</div>
-  <div class="pdf-ov-title" id="pdfOvTitle">Génération du PDF…</div>
-  <div class="pdf-ov-sub" id="pdfOvSub">Préparation</div>
-  <div class="pdf-ov-bar"><div class="pdf-ov-fill" id="pdfOvFill"></div></div>
-</div>
+
 <div class="up-ov" id="upOv">
   <div style="font-size:40px;animation:spin 1.2s linear infinite;display:inline-block">☁️</div>
   <div class="up-ov-title" id="upOvTitle">Envoi vers Drive…</div>
@@ -235,15 +230,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 // ══ CONFIG ══
 const CLIENT_ID='674952255050-p83d3rim4jdv4a29q33b0kk3q1t035hh.apps.googleusercontent.com';
 const SCOPES='https://www.googleapis.com/auth/drive.file';
-const TAX_YEAR = (function(){
-  const now = new Date();
-  // L'année fiscale = année en cours si on est avant le 31 mars, sinon année en cours - 1
-  // Ex: en jan/fev/mars 2026 → déclaration 2025 ; en avril 2026 → déclaration 2026
-  const y = now.getFullYear();
-  const m = now.getMonth(); // 0=jan
-  return (m < 3) ? y - 1 : y; // avant avril = année précédente
-})();
-const FOLDER_NAME = 'Justificatifs impôts ' + TAX_YEAR;
+const TAX_YEAR = new Date().getFullYear();
+// Dossier racine avec l'année : permet d'avoir des archives par année
+const FOLDER_NAME = TAX_YEAR + ' — Justificatifs impôts GE';
 
 // ══ CHECKLIST ══
 const CL=[
@@ -450,27 +439,28 @@ function detectMatches(text){
 
 // ══ DEADLINE ══
 (function(){
-  // Titre dynamique
-  const yt = document.getElementById('yearTitle');
-  if(yt) yt.textContent = TAX_YEAR;
-  // Échéance = 31 mars de l'année de dépôt (TAX_YEAR + 1)
-  const filingYear = TAX_YEAR + 1;
-  const now=new Date();
-  const end=new Date(filingYear,2,31); // 31 mars
-  const start=new Date(filingYear,0,1); // 1 jan
-  const days=Math.max(0,Math.ceil((end-now)/86400000));
-  const pct=Math.min(100,Math.max(0,Math.round(((now-start)/(end-start))*100)));
-  document.getElementById('dlDays').textContent=days;
-  document.getElementById('dlFill').style.width=pct+'%';
-  document.getElementById('dlPct').textContent=pct+'%';
-  // Mettre à jour la date affichée
-  const dlDateEl=document.getElementById('dlDateText');
-  if(dlDateEl) dlDateEl.textContent='31 mars '+filingYear;
-  // Mettre à jour les labels de la barre
-  const dlStartEl=document.getElementById('dlStartText');
-  if(dlStartEl) dlStartEl.textContent='1 jan '+filingYear;
-  // Titre app
-  document.title='Impôts GE '+TAX_YEAR;
+  const filingYear = TAX_YEAR + 1; // Dépôt = 31 mars de l'année suivante
+  const now = new Date();
+  const end = new Date(filingYear, 2, 31);
+  const start = new Date(filingYear, 0, 1);
+  const days = Math.max(0, Math.ceil((end - now) / 86400000));
+  const pct = Math.min(100, Math.max(0, Math.round(((now - start) / (end - start)) * 100)));
+
+  // Année dans la carte deadline
+  const dlY = document.getElementById('dlYear');
+  if(dlY) dlY.textContent = TAX_YEAR;
+
+  document.getElementById('dlDays').textContent = days;
+  document.getElementById('dlFill').style.width = pct + '%';
+  document.getElementById('dlPct').textContent = pct + '%';
+
+  const dlDateEl = document.getElementById('dlDateText');
+  if(dlDateEl) dlDateEl.textContent = '31 mars ' + filingYear;
+  const dlStartEl = document.getElementById('dlStartText');
+  if(dlStartEl) dlStartEl.textContent = '1 jan ' + filingYear;
+
+  // Badge checklist header
+  document.getElementById('hBadge') // mis à jour par updateProgress
 })();
 
 // ══ PROGRESS ══
@@ -554,9 +544,9 @@ const catName=id=>(CL.find(g=>g.id===id)||{name:'Divers'}).name;
 const catColor=id=>CC[id]||'#4a5a7a';
 
 function docDot(doc){
-  if(doc.driveId)return`<div class="dot dot-g" title="☁️ Synchronisé Drive"></div>`;
-  if(doc.fileData)return`<div class="dot dot-b" title="📱 Local uniquement"></div>`;
-  return`<div class="dot dot-e" title="Sans fichier"></div>`;
+  if(doc.driveId)return`<div class="dot dot-g" title="☁️ PDF sur Drive"></div>`;
+  if(doc.fileData)return`<div class="dot dot-b" title="📄 PDF local"></div>`;
+  return`<div class="dot dot-e" title="Pas de fichier"></div>`;
 }
 function docCardHTML(doc){
   const color=catColor(doc.cat);
@@ -579,23 +569,8 @@ function renderHomeDocs(){
 }
 
 // ══ PDF BANNER ══
-function pdfBannerHTML(){
-  const wf=S.docs.filter(d=>d.fileData).length;
-  if(!S.docs.length)return'';
-  const dis=wf===0?'disabled':'';
-  return`<div class="pdf-banner">
-    <div class="pdf-banner-ico">📋</div>
-    <div class="pdf-banner-info">
-      <div class="pdf-banner-title">Exporter en PDF</div>
-      <div class="pdf-banner-sub">${wf} fichier(s) · ${S.docs.length} document(s)</div>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="pdf-btn" onclick="exportPDF('merged')" ${dis} style="flex:1;font-size:11px;padding:7px 8px">📦 Tout en un</button>
-        <button class="pdf-btn" onclick="exportPDF('separate')" ${dis} style="flex:1;font-size:11px;padding:7px 8px;background:linear-gradient(135deg,#6366f1,#4338ca)">📄 PDFs séparés</button>
-      </div>
-    </div>
-  </div>`;
-}
-function renderPdfBanners(){const h=pdfBannerHTML();document.getElementById('homePdfBanner').innerHTML=h;document.getElementById('docsPdfBanner').innerHTML=h;}
+// Banners PDF supprimés — export géré à l'enregistrement
+function renderPdfBanners(){}
 
 // ══ OPEN DOC ══
 function openDoc(id){
@@ -759,231 +734,84 @@ async function confirmAdd(editId){
   const isEdit=editId&&editId!=='null';
   closeOverlay();
 
-  let driveId=null,driveLink=null;
-  if(pendingFile&&isDriveOk()){
-    const ext=pendingFile.type==='application/pdf'?'pdf':pendingFile.type==='image/png'?'png':'jpg';
-    const safe=name.replace(/[^a-zA-Z0-9 \-_]/g,'_');
-    showUpOv(`Envoi : ${name}`);
-    try{
-      const primItem = Object.keys(scanSel).filter(k=>scanSel[k])[0]||null;
-      const res=await uploadToDrive(`${safe}.${ext}`,pendingFile.type,pendingFile.dataURL,cat,primItem);
-      if(res){driveId=res.id;driveLink=res.webViewLink;}
-      hideUpOv();
-    }catch(e){hideUpOv();showToast('⚠️ Upload échoué — sauvegardé en local');}
-  }
-
-  if(isEdit){
-    const doc=S.docs.find(d=>d.id===editId);
-    if(doc){
-      if(doc.linked)doc.linked.forEach(lid=>{delete S.checked[lid];});
-      Object.assign(doc,{name,cat,note,linked});
-      if(pendingFile){doc.fileData=pendingFile.dataURL;doc.fileType=pendingFile.type;}
-      if(driveId){doc.driveId=driveId;doc.driveLink=driveLink;}
+  // Sans fichier : enregistrement simple en local uniquement
+  if(!pendingFile){
+    if(isEdit){
+      const doc=S.docs.find(d=>d.id===editId);
+      if(doc){if(doc.linked)doc.linked.forEach(lid=>{delete S.checked[lid];});Object.assign(doc,{name,cat,note,linked});}
+    }else{
+      S.docs.unshift({id:Date.now().toString(),name,cat,note,date:Date.now(),linked,fileData:null,fileType:null,driveId:null,driveLink:null});
     }
-  }else{
-    S.docs.unshift({id:Date.now().toString(),name,cat,note,date:Date.now(),linked,
-      fileData:pendingFile?.dataURL||null,fileType:pendingFile?.type||null,driveId,driveLink});
+    save();refreshAll();showToast('✅ Document enregistré');
+    return;
   }
-  // Pas d'auto-cochage — l'utilisateur gère manuellement la checklist
-  save();refreshAll();
-  showToast(driveId?'☁️ Sauvegardé sur Drive !':'✅ Document enregistré');
-}
 
-// ══ UPLOAD OV ══
-function showUpOv(title){
-  document.getElementById('upOvTitle').textContent=title;
-  document.getElementById('upOvSub').textContent='En cours…';
-  document.getElementById('upOvFill').style.width='60%';
-  document.getElementById('upOv').classList.add('show');
-}
-function hideUpOv(){document.getElementById('upOv').classList.remove('show');}
-
-// ══ HELPERS PDF ══
-function safeName(n){return n.replace(/[^a-zA-Z0-9 \-_àâéèêëîïôùûç]/g,'_').trim();}
-function dlPdf(bytes,filename){
-  const blob=new Blob([bytes],{type:'application/pdf'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=filename;
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(url),5000);
-}
-async function docToPdfBytes(doc){
-  const{PDFDocument,rgb,StandardFonts}=PDFLib;
-  const single=await PDFDocument.create();
-  const font=await single.embedFont(StandardFonts.HelveticaBold);
-  const fontReg=await single.embedFont(StandardFonts.Helvetica);
-  if(doc.fileType==='application/pdf'){
-    const b64=doc.fileData.split(',')[1];
-    const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-    const src=await PDFDocument.load(bytes,{ignoreEncryption:true});
-    const pages=await single.copyPages(src,src.getPageIndices());
-    pages.forEach(p=>single.addPage(p));
-  }else{
-    const b64=doc.fileData.split(',')[1];
-    const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-    let img;
-    try{img=doc.fileType==='image/png'?await single.embedPng(bytes):await single.embedJpg(bytes);}
-    catch(e){try{img=await single.embedJpg(bytes);}catch(e2){img=await single.embedPng(bytes);}}
-    const dims=img.scale(1),scale=Math.min(535/dims.width,730/dims.height,1);
-    const iw=dims.width*scale,ih=dims.height*scale;
-    const p=single.addPage([595,842]);
-    p.drawRectangle({x:0,y:0,width:595,height:842,color:rgb(0.04,0.05,0.09)});
-    p.drawRectangle({x:0,y:800,width:595,height:42,color:rgb(0.1,0.2,0.5)});
-    p.drawText(doc.name.substring(0,54),{x:20,y:822,size:13,font,color:rgb(1,1,1)});
-    p.drawText(catName(doc.cat),{x:20,y:806,size:9,font:fontReg,color:rgb(0.6,0.75,1)});
-    p.drawImage(img,{x:(595-iw)/2,y:(760-ih)/2+20,width:iw,height:ih});
-    if(doc.note)p.drawText('Note : '+doc.note.substring(0,80),{x:20,y:16,size:9,font:fontReg,color:rgb(0.4,0.5,0.65)});
-  }
-  return single.save();
-}
-
-// ══ EXPORT PDF ══
-async function exportPDF(mode){
-  if(!mode)mode='merged';
-  const withFile=S.docs.filter(d=>d.fileData);
-  if(!withFile.length){showToast('⚠️ Aucun fichier joint');return;}
-  const ov=document.getElementById('pdfOv'),sub=document.getElementById('pdfOvSub');
-  const fill=document.getElementById('pdfOvFill'),ico=document.getElementById('pdfOvIco');
-  const title=document.getElementById('pdfOvTitle');
-  ov.classList.add('show');
-  ico.className='pdf-ov-ico spin';
-  const sorted=[...withFile].sort((a,b)=>{const gi=id=>CL.findIndex(g=>g.id===id);return gi(a.cat)-gi(b.cat)||a.name.localeCompare(b.name);});
-  const dateStr=new Date().toISOString().slice(0,10);
+  // Avec fichier : convertir en PDF puis envoyer sur Drive
+  showUpOv('Conversion en PDF…');
   try{
-    if(mode==='separate'){
-      // ── MODE PDFs SÉPARÉS ──
-      title.textContent='PDFs séparés…';sub.textContent='Initialisation…';fill.style.width='0%';
-      for(let i=0;i<sorted.length;i++){
-        const doc=sorted[i];
-        sub.textContent=(i+1)+'/'+sorted.length+' — '+doc.name;
-        fill.style.width=Math.round((i/sorted.length)*90)+'%';
-        await new Promise(r=>setTimeout(r,0));
-        try{
-          const bytes=await docToPdfBytes(doc);
-          const fname=safeName(doc.name)+'_'+dateStr+'.pdf';
-          dlPdf(bytes,fname);
-          // Upload individuel sur Drive
-          if(isDriveOk()){
-            try{
-              const pdfB64sep=uint8ToBase64(new Uint8Array(bytes));
-              const primSep=doc.linked&&doc.linked.length>0?doc.linked[0]:null;
-              await uploadToDrive(fname,'application/pdf','data:application/pdf;base64,'+pdfB64sep,doc.cat,primSep);
-            }catch(e){console.warn('Drive upload fail',doc.name,e);}
-          }
-          await new Promise(r=>setTimeout(r,600)); // délai entre téléchargements
-        }catch(err){console.warn('Skip:',doc.name,err);}
-      }
-      fill.style.width='100%';
-      await new Promise(r=>setTimeout(r,300));
-      ico.className='pdf-ov-ico';ico.textContent='✅';
-      title.textContent=sorted.length+' PDFs générés !';
-      sub.textContent=sorted.length+' fichiers'+(isDriveOk()?' · sauvegardés sur Drive ☁️':'');
-      setTimeout(()=>{ov.classList.remove('show');ico.textContent='⚙️';ico.className='pdf-ov-ico spin';},2400);
-      showToast('✅ '+sorted.length+' PDFs séparés'+(isDriveOk()?' + Drive':''));
-    } else {
-      // ── MODE PDF FUSIONNÉ ──
-      title.textContent='PDF fusionné…';sub.textContent='Couverture…';fill.style.width='4%';
-      const{PDFDocument,rgb,StandardFonts}=PDFLib;
-      const merged=await PDFDocument.create();
-      const font=await merged.embedFont(StandardFonts.HelveticaBold);
-      const fontReg=await merged.embedFont(StandardFonts.Helvetica);
-      const cp=merged.addPage([595,842]);
-      cp.drawRectangle({x:0,y:0,width:595,height:842,color:rgb(0.027,0.035,0.059)});
-      cp.drawRectangle({x:0,y:762,width:595,height:80,color:rgb(0.14,0.31,0.74)});
-      cp.drawText('DÉCLARATION FISCALE '+TAX_YEAR,{x:30,y:810,size:20,font,color:rgb(1,1,1)});
-      cp.drawText('Genève — Dossier personnel',{x:30,y:788,size:12,font:fontReg,color:rgb(0.8,0.88,1)});
-      const today=new Date().toLocaleDateString('fr-CH',{day:'numeric',month:'long',year:'numeric'});
-      cp.drawText('Généré le '+today,{x:30,y:750,size:10,font:fontReg,color:rgb(0.4,0.5,0.65)});
-      cp.drawText('SOMMAIRE',{x:30,y:715,size:9,font,color:rgb(0.35,0.55,0.95)});
-      let yy=695;
-      for(const doc of sorted){
-        if(yy<80)break;
-        cp.drawText(('• '+doc.name).substring(0,70),{x:30,y:yy,size:10,font:fontReg,color:rgb(0.82,0.87,1)});
-        cp.drawText(catName(doc.cat),{x:420,y:yy,size:9,font:fontReg,color:rgb(0.4,0.5,0.65)});
-        yy-=16;
-      }
-      cp.drawText(sorted.length+' document(s)'+(isDriveOk()?' · Drive ☁️':''),{x:30,y:50,size:9,font,color:rgb(0.3,0.4,0.55)});
-      for(let i=0;i<sorted.length;i++){
-        const doc=sorted[i];
-        sub.textContent=(i+1)+'/'+sorted.length+' — '+doc.name;
-        fill.style.width=Math.round(8+(i/sorted.length)*84)+'%';
-        await new Promise(r=>setTimeout(r,0));
-        try{
-          if(doc.fileType==='application/pdf'){
-            const sp=merged.addPage([595,842]);
-            sp.drawRectangle({x:0,y:0,width:595,height:842,color:rgb(0.04,0.05,0.09)});
-            sp.drawRectangle({x:0,y:790,width:595,height:52,color:rgb(0.1,0.2,0.5)});
-            sp.drawText(doc.name.substring(0,54),{x:20,y:818,size:15,font,color:rgb(1,1,1)});
-            sp.drawText(catName(doc.cat),{x:20,y:800,size:9,font:fontReg,color:rgb(0.6,0.75,1)});
-            const b64=doc.fileData.split(',')[1];
-            const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-            try{const srcPdf=await PDFDocument.load(bytes,{ignoreEncryption:true});const pages=await merged.copyPages(srcPdf,srcPdf.getPageIndices());pages.forEach(p=>merged.addPage(p));}
-            catch(e){sp.drawText('⚠ PDF non lisible',{x:20,y:400,size:14,font,color:rgb(1,0.5,0.3)});}
-          }else{
-            const b64=doc.fileData.split(',')[1];
-            const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-            let img;
-            try{img=doc.fileType==='image/png'?await merged.embedPng(bytes):await merged.embedJpg(bytes);}
-            catch(e){try{img=await merged.embedJpg(bytes);}catch(e2){try{img=await merged.embedPng(bytes);}catch(e3){continue;}}}
-            const dims=img.scale(1),scale=Math.min(535/dims.width,730/dims.height,1);
-            const iw=dims.width*scale,ih=dims.height*scale;
-            const ip=merged.addPage([595,842]);
-            ip.drawRectangle({x:0,y:0,width:595,height:842,color:rgb(0.04,0.05,0.09)});
-            ip.drawRectangle({x:0,y:800,width:595,height:42,color:rgb(0.1,0.2,0.5)});
-            ip.drawText(doc.name.substring(0,54),{x:20,y:822,size:13,font,color:rgb(1,1,1)});
-            ip.drawText(catName(doc.cat),{x:20,y:806,size:9,font:fontReg,color:rgb(0.6,0.75,1)});
-            ip.drawImage(img,{x:(595-iw)/2,y:(760-ih)/2+20,width:iw,height:ih});
-            if(doc.note)ip.drawText('Note : '+doc.note.substring(0,80),{x:20,y:16,size:9,font:fontReg,color:rgb(0.4,0.5,0.65)});
-          }
-        }catch(err){console.warn('Skip:',doc.name,err);}
-      }
-      sub.textContent='Finalisation…';fill.style.width='95%';
-      await new Promise(r=>setTimeout(r,60));
-      const pdfBytes=await merged.save();
-      fill.style.width='100%';
-      dlPdf(pdfBytes,'Impots_GE_'+TAX_YEAR+'_'+dateStr+'.pdf');
-      if(isDriveOk()){
-        try{
-          sub.textContent='Envoi sur Drive…';
-          const b64=btoa(String.fromCharCode(...new Uint8Array(pdfBytes)));
-          await uploadToDrive('Impots_GE_2025_'+dateStr+'.pdf','application/pdf','data:application/pdf;base64,'+b64);
-        }catch(e){console.warn('PDF drive upload fail',e);}
-      }
-      await new Promise(r=>setTimeout(r,400));
-      ico.className='pdf-ov-ico';ico.textContent='✅';
-      title.textContent='PDF généré !';
-      sub.textContent=sorted.length+' docs'+(isDriveOk()?' · sauvegardé sur Drive ☁️':'');
-      setTimeout(()=>{ov.classList.remove('show');ico.textContent='⚙️';ico.className='pdf-ov-ico spin';},2400);
-      showToast('✅ PDF fusionné '+TAX_YEAR+' — '+sorted.length+' documents'+(isDriveOk()?' + Drive':''));
+    // Créer objet temporaire pour docToPdfBytes
+    const tempDoc={name,cat,note,fileData:pendingFile.dataURL,fileType:pendingFile.type};
+    const pdfBytes=await docToPdfBytes(tempDoc);
+    const pdfB64=uint8ToBase64(new Uint8Array(pdfBytes));
+    const pdfDataURL='data:application/pdf;base64,'+pdfB64;
+
+    let driveId=null,driveLink=null;
+    if(isDriveOk()){
+      document.getElementById('upOvTitle').textContent='Envoi sur Drive…';
+      const fname=safeName(name)+'.pdf';
+      const primItem=linked.length>0?linked[0]:null;
+      try{
+        const res=await uploadToDrive(fname,'application/pdf',pdfDataURL,cat,primItem);
+        if(res){driveId=res.id;driveLink=res.webViewLink;}
+      }catch(e){console.warn('Drive upload fail',e);}
     }
+
+    // Si Drive OK → pas besoin de garder le fichier en local (localStorage léger)
+    // Si pas de Drive → garder le PDF localement
+    const docObj={
+      id:isEdit?editId:Date.now().toString(),
+      name,cat,note,date:Date.now(),linked,
+      fileData:driveId?null:pdfDataURL,
+      fileType:'application/pdf',
+      driveId,driveLink
+    };
+
+    if(isEdit){
+      const doc=S.docs.find(d=>d.id===editId);
+      if(doc){
+        if(doc.linked)doc.linked.forEach(lid=>{delete S.checked[lid];});
+        Object.assign(doc,{name,cat,note,linked,fileData:docObj.fileData,fileType:'application/pdf',driveId,driveLink});
+      }
+    }else{
+      S.docs.unshift(docObj);
+    }
+
+    hideUpOv();save();refreshAll();
+    showToast(driveId?'☁️ PDF envoyé sur Drive !':'📄 PDF enregistré en local');
+
   }catch(err){
-    console.error(err);ov.classList.remove('show');showToast('❌ Erreur PDF');
+    console.error('Erreur conversion PDF:',err);
+    hideUpOv();
+    // Fallback : garder fichier brut en local
+    const docFallback={
+      id:isEdit?editId:Date.now().toString(),
+      name,cat,note,date:Date.now(),linked,
+      fileData:pendingFile.dataURL,fileType:pendingFile.type,
+      driveId:null,driveLink:null
+    };
+    if(isEdit){
+      const doc=S.docs.find(d=>d.id===editId);
+      if(doc){if(doc.linked)doc.linked.forEach(lid=>{delete S.checked[lid];});Object.assign(doc,{name,cat,note,linked,fileData:pendingFile.dataURL,fileType:pendingFile.type});}
+    }else{
+      S.docs.unshift(docFallback);
+    }
+    save();refreshAll();
+    showToast('⚠️ Erreur PDF — fichier conservé en local');
   }
 }
 
-// ══ NAVIGATION ══
-function goTab(t){
-  ['home','cl','docs'].forEach(v=>{
-    document.getElementById('view-'+v).classList.toggle('active',v===t);
-    document.getElementById('tab-'+v).classList.toggle('active',v===t);
-    document.getElementById('ni-'+v).classList.toggle('active',v===t);
-  });
-  if(t==='cl')renderFullCL();
-  if(t==='docs')renderDocs();
-}
-function openOverlay(){document.getElementById('overlay').classList.add('open');}
-function closeOverlay(){document.getElementById('overlay').classList.remove('open');}
-function overlayBg(e){if(e.target===document.getElementById('overlay'))closeOverlay();}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3000);}
-function refreshAll(){
-  updateProgress();renderHomeCL();renderHomeDocs();renderDriveBanners();renderPdfBanners();
-  const av=document.querySelector('.view.active');
-  if(av?.id==='view-cl')renderFullCL();
-  if(av?.id==='view-docs')renderDocs();
-}
-initGoogleAuth();
-refreshAll();
-</script>
-</body>
-</html>
+  const storageStatus=doc.driveId
+    ?`<div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:var(--green)">☁️ PDF sauvegardé sur Google Drive</div>`
+    :doc.fileData
+    ?`<div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:var(--accent)">📄 PDF en local — connecte Drive pour sauvegarder</div>`
+    :`<div style="background:var(--bg3);border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:var(--text2)">⚠️ Aucun fichier joint</div>`;
