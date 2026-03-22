@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ImpôtGE">
 <meta name="theme-color" content="#07090f">
+<link rel="apple-touch-icon" href="icon.png">
 <title>ImpôtGE</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
@@ -14,48 +15,56 @@
 <style>
 :root{
   --bg:#07090f;--bg2:#0e1018;--bg3:#161923;--bg4:#1e2330;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
-  --accent:#3b82f6;--accent-g:linear-gradient(135deg,#3b82f6,#6366f1);
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);
+  --accent:#3b82f6;--ag:linear-gradient(135deg,#3b82f6,#6366f1);
   --green:#22c55e;--gold:#eab308;--red:#ef4444;
   --text:#eef2ff;--text2:#7c8db0;--text3:#3a4560;
   --r:16px;--st:env(safe-area-inset-top);--sb:env(safe-area-inset-bottom);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* HEADER */
 .hdr{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--border);padding:calc(var(--st) + 12px) 18px 10px}
 .hrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .htitle{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.3px}
-.htitle em{font-style:normal;background:var(--accent-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.htitle em{font-style:normal;background:var(--ag);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hright{display:flex;align-items:center;gap:8px}
 .hbadge{font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px;border:1px solid var(--border2);color:var(--text2)}
+.drvbtn{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;cursor:pointer;border:none;font-family:'Inter',sans-serif}
+.drvbtn.on{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.drvbtn.off{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
 .ps-row{display:flex;justify-content:space-between;margin-bottom:5px}
 .ps-lbl{font-size:11px;color:var(--text2)}.ps-pct{font-size:11px;font-weight:600;color:var(--accent)}
 .ps-bar{height:3px;background:var(--bg3);border-radius:3px;overflow:hidden}
-.ps-fill{height:100%;border-radius:3px;background:var(--accent-g);transition:width .5s ease}
+.ps-fill{height:100%;border-radius:3px;background:var(--ag);transition:width .5s}
+
+/* TABS */
 .tabs{display:flex;gap:3px;padding:10px 14px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border)}
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex-shrink:0;padding:7px 14px;border-radius:30px;font-size:13px;font-weight:500;border:none;background:transparent;color:var(--text2);cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:5px}
 .tab .tb{font-size:10px;padding:1px 6px;border-radius:10px;background:var(--bg3);color:var(--text2)}
 .tab.active{background:var(--accent);color:#fff}
 .tab.active .tb{background:rgba(255,255,255,.2);color:#fff}
+
+/* MAIN */
 .main{padding:14px 14px calc(88px + var(--sb));max-width:600px;margin:0 auto}
 .slabel{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin:20px 0 8px 2px}
-/* DRIVE */
-.drive-banner{border-radius:var(--r);padding:15px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.drive-banner.off{background:linear-gradient(135deg,#0e1a0e,#081208);border:1px solid rgba(34,197,94,.2)}
-.drive-banner.on{background:linear-gradient(135deg,#0a180a,#061006);border:1px solid rgba(34,197,94,.4)}
-.drive-banner-ico{font-size:26px;flex-shrink:0}
-.drive-banner-info{flex:1;min-width:0}
-.drive-banner-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:2px;display:flex;align-items:center;gap:6px}
-.drive-banner-sub{font-size:11px;color:var(--text2)}
-.sync-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
-.sync-dot.ok{background:var(--green)}
-.sync-dot.spin{background:var(--gold);animation:blink 1s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-.drive-btn-on{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;flex-shrink:0}
-.drive-btn-off{background:var(--bg3);color:var(--text2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;flex-shrink:0}
+
+/* DRIVE BANNER */
+.drv-banner{border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.drv-banner.off{background:linear-gradient(135deg,#0e1a0e,#081208);border:1px solid rgba(34,197,94,.2)}
+.drv-banner.on{background:linear-gradient(135deg,#0a180a,#061006);border:1px solid rgba(34,197,94,.4)}
+.drv-ico{font-size:26px;flex-shrink:0}
+.drv-info{flex:1;min-width:0}
+.drv-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:2px}
+.drv-sub{font-size:11px;color:var(--text2)}
+.drv-btn-on{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;flex-shrink:0}
+.drv-btn-off{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);border-radius:10px;padding:8px 12px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;flex-shrink:0}
+
 /* DEADLINE */
 .dl-card{background:linear-gradient(135deg,#0e1a30,#080e20);border:1px solid rgba(59,130,246,.2);border-radius:var(--r);padding:18px;margin-bottom:10px;position:relative;overflow:hidden}
-.dl-card::after{content:'';position:absolute;top:-50px;right:-50px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.1) 0%,transparent 70%)}
+.dl-card::after{content:'';position:absolute;top:-50px;right:-50px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.1),transparent 70%)}
 .dl-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
 .dl-badge{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6ea8fe;margin-bottom:4px}
 .dl-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:800}
@@ -67,14 +76,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .dl-pb{height:3px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
 .dl-pf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--gold))}
 .dl-pl{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--text3)}
-/* PDF BANNER */
-.pdf-banner{background:linear-gradient(135deg,#1a1800,#100f00);border:1px solid rgba(234,179,8,.3);border-radius:var(--r);padding:15px 16px;display:flex;align-items:center;gap:12px}
-.pdf-banner-ico{font-size:26px;flex-shrink:0}
-.pdf-banner-info{flex:1;min-width:0}
-.pdf-banner-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:2px}
-.pdf-banner-sub{font-size:11px;color:var(--text2)}
-.pdf-btn{background:linear-gradient(135deg,#eab308,#ca8a04);color:#0a0800;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;flex-shrink:0}
-.pdf-btn:disabled{opacity:.35;cursor:not-allowed}
+
 /* CHECKLIST */
 .cl-group{margin-bottom:6px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
 .cl-gh{display:flex;align-items:center;gap:10px;padding:13px 14px;background:var(--bg2);cursor:pointer;user-select:none}
@@ -90,9 +92,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .cl-ii{flex:1;min-width:0}
 .cl-in{font-size:13px;font-weight:500;margin-bottom:1px}.cl-item.chk .cl-in{text-decoration:line-through;color:var(--text2)}
 .cl-is{font-size:11px;color:var(--text2)}
-.tag-scan{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:rgba(34,197,94,.12);color:var(--green);flex-shrink:0}
+.tag-scan{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:rgba(34,197,94,.12);color:var(--green);flex-shrink:0;white-space:nowrap}
 .tag-todo{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:rgba(59,130,246,.07);color:var(--text3);flex-shrink:0}
-/* DOCS */
+
+/* DOC CARDS */
 .doc-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:7px;cursor:pointer;transition:all .15s}
 .doc-card:active{background:var(--bg3);transform:scale(.99)}
 .doc-ico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
@@ -100,18 +103,25 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .doc-nm{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
 .doc-mt{font-size:11px;color:var(--text2)}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.dot-g{background:var(--green)}.dot-b{background:var(--accent)}.dot-e{background:var(--text3)}
+.dot-g{background:var(--green)}
+.dot-b{background:var(--accent)}
+.dot-e{background:var(--text3)}
 .doc-arr{color:var(--text3);font-size:14px;flex-shrink:0}
+
 /* FAB */
-.fab{position:fixed;bottom:calc(72px + var(--sb));right:16px;width:56px;height:56px;border-radius:50%;background:var(--accent-g);border:none;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 6px 24px rgba(59,130,246,.4);display:flex;align-items:center;justify-content:center;z-index:90;transition:transform .15s;line-height:1}
+.fab{position:fixed;bottom:calc(72px + var(--sb));right:16px;width:56px;height:56px;border-radius:50%;background:var(--ag);border:none;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 6px 24px rgba(59,130,246,.4);display:flex;align-items:center;justify-content:center;z-index:90;transition:transform .15s}
 .fab:active{transform:scale(.9)}
-/* BNAV */
+
+/* BOTTOM NAV */
 .bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(7,9,15,.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border);padding:8px 0 calc(8px + var(--sb));display:flex;justify-content:space-around}
 .ni{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 20px;background:none;border:none;color:var(--text2);font-family:'Inter',sans-serif}
 .ni.active{color:var(--accent)}
 .ni-ico{font-size:21px}.ni-lbl{font-size:10px;font-weight:500}
+
+/* VIEWS */
 .view{display:none}.view.active{display:block}
-/* OVERLAY */
+
+/* OVERLAY / MODAL */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(12px);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .22s}
 .overlay.open{opacity:1;pointer-events:all}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:24px 24px 0 0;padding:18px 18px calc(32px + var(--sb));width:100%;max-height:92dvh;overflow-y:auto;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
@@ -122,552 +132,659 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .fgroup{margin-bottom:12px}
 .finput{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:11px 13px;font-size:15px;color:var(--text);font-family:'Inter',sans-serif;outline:none;-webkit-appearance:none}
 .finput:focus{border-color:var(--accent)}
-.fbtn{width:100%;background:var(--accent-g);color:#fff;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:6px}
+.fbtn{width:100%;background:var(--ag);color:#fff;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:6px}
 .fbtn2{width:100%;background:var(--bg3);color:var(--text2);border:1px solid var(--border);border-radius:13px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;margin-top:6px}
 .fbtn-del{width:100%;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:13px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;margin-top:6px}
+
 /* FILE ZONE */
 .file-zone{border:2px dashed var(--border2);border-radius:12px;padding:22px;text-align:center;cursor:pointer;position:relative;transition:border-color .2s}
 .file-zone:active{border-color:var(--accent)}
 .file-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.fz-ico{font-size:30px;margin-bottom:6px}.fz-lbl{font-size:13px;font-weight:500;margin-bottom:3px}.fz-sub{font-size:11px;color:var(--text2)}
+.fz-ico{font-size:30px;margin-bottom:6px}
+.fz-lbl{font-size:13px;font-weight:500;margin-bottom:3px}
+.fz-sub{font-size:11px;color:var(--text2)}
 .file-prev{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:10px 13px;display:flex;align-items:center;gap:10px}
-.fp-ico{font-size:20px}.fp-nm{font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}.fp-rm{background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;flex-shrink:0;padding:0 4px}
-/* MATCH */
+.fp-ico{font-size:20px}
+.fp-nm{font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.fp-rm{background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;flex-shrink:0}
+
+/* MATCH BOX */
 .match-wrap{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.18);border-radius:11px;padding:11px 13px;margin-bottom:12px}
 .match-hd{font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
 .match-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .match-row:last-child{border-bottom:none}
 .match-cb{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s}
 .match-cb.sel{background:var(--accent);border-color:var(--accent);color:#fff}
-.match-nm{font-size:13px;font-weight:500;flex:1}.match-grp{font-size:11px;color:var(--text2)}
-/* PDF OV */
-.pdf-ov{position:fixed;inset:0;background:rgba(7,9,15,.97);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;opacity:0;pointer-events:none;transition:opacity .3s;padding:30px;text-align:center}
-.pdf-ov.show{opacity:1;pointer-events:all}
-.pdf-ov-ico{font-size:52px;line-height:1}
-@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-.pdf-ov-ico.spin{display:inline-block;animation:spin 1.4s linear infinite}
-.pdf-ov-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800}
-.pdf-ov-sub{font-size:13px;color:var(--text2);min-height:20px}
-.pdf-ov-bar{width:260px;height:4px;background:var(--bg3);border-radius:4px;overflow:hidden}
-.pdf-ov-fill{height:100%;background:linear-gradient(90deg,var(--gold),#f59e0b);border-radius:4px;transition:width .35s ease;width:0%}
-/* UPLOAD OV */
+.match-nm{font-size:13px;font-weight:500;flex:1}
+.match-grp{font-size:11px;color:var(--text2)}
+
+/* UPLOAD OVERLAY */
 .up-ov{position:fixed;inset:0;background:rgba(7,9,15,.88);z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;opacity:0;pointer-events:none;transition:opacity .25s;padding:30px;text-align:center}
 .up-ov.show{opacity:1;pointer-events:all}
-.up-ov-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800}
+.up-ov-ico{font-size:40px}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.up-ov-ico.spin{animation:spin 1.2s linear infinite}
+.up-ov-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800}
 .up-ov-sub{font-size:12px;color:var(--text2)}
 .up-ov-bar{width:220px;height:3px;background:var(--bg3);border-radius:3px;overflow:hidden}
-.up-ov-fill{height:100%;background:var(--accent-g);border-radius:3px;transition:width .3s ease;width:0%}
+.up-ov-fill{height:100%;background:var(--ag);border-radius:3px;width:60%;transition:width .3s}
+
 /* TOAST */
-.toast{position:fixed;top:calc(var(--st) + 66px);left:50%;transform:translateX(-50%) translateY(-8px);background:var(--bg3);border:1px solid var(--border2);border-radius:25px;padding:9px 16px;font-size:13px;font-weight:500;z-index:600;opacity:0;transition:all .25s;white-space:nowrap;pointer-events:none}
+.toast{position:fixed;top:calc(var(--st) + 66px);left:50%;transform:translateX(-50%) translateY(-8px);background:var(--bg3);border:1px solid var(--border2);border-radius:25px;padding:9px 16px;font-size:13px;font-weight:500;z-index:500;opacity:0;transition:all .25s;white-space:nowrap;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* EMPTY */
 .empty{text-align:center;padding:32px 20px;color:var(--text2)}
 .empty .ei{font-size:36px;margin-bottom:10px}
 .empty h3{font-size:15px;font-weight:600;color:var(--text);margin-bottom:5px}
 .empty p{font-size:12px;line-height:1.6}
+
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.cl-group,.doc-card,.dl-card,.pdf-banner,.drive-banner{animation:fadeUp .25s ease both}
+.cl-group,.doc-card,.dl-card,.drv-banner{animation:fadeUp .25s ease both}
 </style>
 </head>
 <body>
+
+<!-- HEADER -->
 <div class="hdr">
   <div class="hrow">
     <div class="htitle">Impôt<em>GE</em></div>
-    <div class="hbadge" id="hBadge">0 / 0</div>
+    <div class="hright">
+      <button class="drvbtn off" id="drvBtn" onclick="drvBtnClick()">
+        <span id="drvBtnIco">📂</span><span id="drvBtnTxt">Drive</span>
+      </button>
+      <div class="hbadge" id="hBadge">0 / 0</div>
+    </div>
   </div>
   <div class="ps-row"><span class="ps-lbl">Checklist complétée</span><span class="ps-pct" id="psPct">0%</span></div>
   <div class="ps-bar"><div class="ps-fill" id="psFill" style="width:0%"></div></div>
 </div>
+
+<!-- TABS -->
 <div class="tabs">
   <button class="tab active" id="tab-home" onclick="goTab('home')">🏠 Accueil</button>
   <button class="tab" id="tab-cl" onclick="goTab('cl')">✅ Checklist <span class="tb" id="tbRest">—</span></button>
   <button class="tab" id="tab-docs" onclick="goTab('docs')">📄 Documents <span class="tb" id="tbDocs">0</span></button>
 </div>
+
+<!-- MAIN -->
 <div class="main">
+
+  <!-- ACCUEIL -->
   <div class="view active" id="view-home">
-    <div id="driveBannerHome"></div>
+    <div id="drvBannerHome"></div>
     <div class="slabel">Échéance</div>
     <div class="dl-card">
       <div class="dl-top">
-        <div><div class="dl-badge">Déclaration fiscale</div><div class="dl-name">Genève <span id="dlYear"></span></div></div>
+        <div>
+          <div class="dl-badge">Déclaration fiscale</div>
+          <div class="dl-name">Genève <span id="dlYear"></span></div>
+        </div>
         <div class="dl-cnt"><div class="dl-num" id="dlDays">—</div><div class="dl-unit">jours</div></div>
       </div>
-      <div class="dl-date">Date limite : <strong id="dlDateText">31 mars 2026</strong></div>
+      <div class="dl-date">Date limite : <strong id="dlDateText">—</strong></div>
       <div class="dl-pb"><div class="dl-pf" id="dlFill" style="width:0%"></div></div>
-      <div class="dl-pl"><span id="dlStartText">1 jan 2026</span><span id="dlPct">0%</span></div>
+      <div class="dl-pl"><span id="dlStartText">—</span><span id="dlPct">0%</span></div>
     </div>
     <div class="slabel">Avancement checklist</div>
-    <div id="homeChecklist"></div>
+    <div id="homeCL"></div>
     <div class="slabel">Documents récents</div>
     <div id="homeDocs"></div>
-    
   </div>
-  <div class="view" id="view-cl"><div id="fullCL"></div></div>
+
+  <!-- CHECKLIST -->
+  <div class="view" id="view-cl">
+    <div id="fullCL"></div>
+  </div>
+
+  <!-- DOCUMENTS -->
   <div class="view" id="view-docs">
-    <div id="driveBannerDocs" style="margin-top:4px"></div>
-    <div id="docsPdfBanner" style="margin-bottom:8px"></div>
+    <div id="drvBannerDocs" style="margin-top:4px;margin-bottom:8px"></div>
     <div id="docsList"></div>
   </div>
+
 </div>
+
+<!-- FAB -->
 <button class="fab" onclick="openAddModal(null)">＋</button>
+
+<!-- BOTTOM NAV -->
 <nav class="bnav">
   <button class="ni active" id="ni-home" onclick="goTab('home')"><span class="ni-ico">🏠</span><span class="ni-lbl">Accueil</span></button>
   <button class="ni" id="ni-cl" onclick="goTab('cl')"><span class="ni-ico">✅</span><span class="ni-lbl">Checklist</span></button>
   <button class="ni" id="ni-docs" onclick="goTab('docs')"><span class="ni-ico">📄</span><span class="ni-lbl">Documents</span></button>
 </nav>
+
+<!-- OVERLAY -->
 <div class="overlay" id="overlay" onclick="overlayBg(event)">
   <div class="modal"><div class="mhandle"></div><div id="mbody"></div></div>
 </div>
 
+<!-- UPLOAD OVERLAY -->
 <div class="up-ov" id="upOv">
-  <div style="font-size:40px;animation:spin 1.2s linear infinite;display:inline-block">☁️</div>
-  <div class="up-ov-title" id="upOvTitle">Envoi vers Drive…</div>
-  <div class="up-ov-sub" id="upOvSub">En cours…</div>
+  <div class="up-ov-ico spin">⚙️</div>
+  <div class="up-ov-title" id="upOvTitle">Traitement…</div>
+  <div class="up-ov-sub" id="upOvSub">En cours</div>
   <div class="up-ov-bar"><div class="up-ov-fill" id="upOvFill"></div></div>
 </div>
+
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ══ CONFIG ══
-const CLIENT_ID='674952255050-p83d3rim4jdv4a29q33b0kk3q1t035hh.apps.googleusercontent.com';
-const SCOPES='https://www.googleapis.com/auth/drive.file';
+// ══════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════
+const CLIENT_ID = '674952255050-p83d3rim4jdv4a29q33b0kk3q1t035hh.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 const TAX_YEAR = new Date().getFullYear();
-// Dossier racine avec l'année : permet d'avoir des archives par année
 const FOLDER_NAME = TAX_YEAR + ' — Justificatifs impôts GE';
 
-// ══ CHECKLIST ══
-const CL=[
-  {id:'revenus',icon:'💼',name:'Revenus',items:[
-    {id:'salaire',  name:'Certificat de salaire',           sub:'Formulaire AFC — employeur',         kw:['certificat','salaire','employeur','avs','laa']},
-    {id:'salaire2', name:'Certificat de salaire (2ème)',    sub:'Si plusieurs employeurs',             kw:['certificat','salaire']},
-    {id:'indem',    name:'Indemnités chômage / APG',        sub:'Attestation ORP ou caisse comp.',     kw:['chomage','indemnite','apg','orp']},
-    {id:'rentes',   name:'Rentes AVS / AI',                 sub:'Attestation annuelle',                kw:['avs','ai','rente','pension']},
-    {id:'lpp_r',    name:'Rente LPP / caisse de pension',   sub:'Si prestations en cours',             kw:['lpp','caisse','pension','rente']},
+// ══════════════════════════════════════════
+// CHECKLIST
+// ══════════════════════════════════════════
+const CL = [
+  { id:'revenus', icon:'💼', name:'Revenus', items:[
+    { id:'salaire',   name:'Certificat de salaire',           sub:'Formulaire AFC — employeur',         kw:['certificat','salaire','employeur','avs','laa'] },
+    { id:'salaire2',  name:'Certificat de salaire (2ème)',    sub:'Si plusieurs employeurs',            kw:['certificat','salaire'] },
+    { id:'indem',     name:'Indemnités chômage / APG',        sub:'Attestation ORP ou caisse comp.',    kw:['chomage','indemnite','apg','orp'] },
+    { id:'rentes',    name:'Rentes AVS / AI',                 sub:'Attestation annuelle',               kw:['avs','ai','rente','pension'] },
+    { id:'lpp_r',     name:'Rente LPP / caisse de pension',   sub:'Si prestations en cours',            kw:['lpp','caisse','pension','rente'] },
   ]},
-  {id:'banques',icon:'🏦',name:'Comptes & Fortune',items:[
-    {id:'ubs',      name:'Relevé bancaire UBS',             sub:'Solde + intérêts au 31.12.2025',      kw:['ubs','banque','releve','compte','solde','interets']},
-    {id:'post',     name:'Relevé PostFinance',              sub:'Solde + intérêts au 31.12.2025',      kw:['postfinance','post','banque','releve']},
-    {id:'autrebk',  name:'Relevé autre banque',             sub:'BCGE, Raiffeisen, neon, Migros…',     kw:['banque','releve','compte','solde','raiffeisen','bcge','migros','neon']},
-    {id:'titres',   name:'Relevé titres / placements',      sub:'Actions, fonds, bons de caisse',      kw:['titres','placements','fonds','actions','portefeuille','bons']},
-    {id:'intcred',  name:'Attestation intérêts créditeurs', sub:'Intérêts reçus sur épargne',          kw:['interets','crediteurs','epargne']},
-    {id:'cryptos',  name:'Cryptomonnaies',                  sub:'Valeur CHF au 31.12.2025',            kw:['crypto','bitcoin','btc','eth','coinbase','binance']},
+  { id:'banques', icon:'🏦', name:'Comptes & Fortune', items:[
+    { id:'ubs',       name:'Relevé bancaire UBS',             sub:'Solde + intérêts au 31.12',          kw:['ubs','banque','releve','compte','solde','interets'] },
+    { id:'post',      name:'Relevé PostFinance',              sub:'Solde + intérêts au 31.12',          kw:['postfinance','post','banque','releve'] },
+    { id:'autrebk',   name:'Relevé autre banque',             sub:'BCGE, Raiffeisen, neon, Migros…',    kw:['banque','releve','compte','solde','raiffeisen','bcge','migros','neon'] },
+    { id:'titres',    name:'Relevé titres / placements',      sub:'Actions, fonds, bons de caisse',     kw:['titres','placements','fonds','actions','portefeuille','bons'] },
+    { id:'intcred',   name:'Attestation intérêts créditeurs', sub:'Intérêts reçus sur épargne',         kw:['interets','crediteurs','epargne'] },
+    { id:'cryptos',   name:'Cryptomonnaies',                  sub:'Valeur CHF au 31.12',                kw:['crypto','bitcoin','btc','eth','coinbase','binance'] },
   ]},
-  {id:'assurances',icon:'🛡️',name:'Assurances',items:[
-    {id:'lamal',    name:'Attestation primes LAMal',        sub:'Total primes 2025 payées',            kw:['lamal','assurance','maladie','css','helsana','swica','primes','sante']},
-    {id:'lca',      name:'Attestation complémentaire LCA',  sub:'Semi-privée, privée, dentaire…',      kw:['lca','complementaire','semi','dent']},
-    {id:'lpp',      name:'Certificat prévoyance LPP',       sub:'Capital épargne au 31.12.2025',       kw:['lpp','prevoyance','caisse','pension','2eme','pilier']},
-    {id:'p3a',      name:'Attestation 3ème pilier (3a)',    sub:'Versements déductibles 2025',         kw:['3a','troisieme','pilier','prevoyance']},
-    {id:'p3b',      name:'Attestation 3ème pilier (3b)',    sub:'Valeur de rachat au 31.12.2025',      kw:['3b','assurance','vie','capital','rachat']},
+  { id:'assurances', icon:'🛡️', name:'Assurances', items:[
+    { id:'lamal',     name:'Attestation primes LAMal',        sub:'Total primes annuelles payées',      kw:['lamal','assurance','maladie','css','helsana','swica','primes','sante'] },
+    { id:'lca',       name:'Attestation complémentaire LCA',  sub:'Semi-privée, privée, dentaire…',     kw:['lca','complementaire','semi','dent'] },
+    { id:'lpp',       name:'Certificat prévoyance LPP',       sub:'Capital épargne au 31.12',           kw:['lpp','prevoyance','caisse','pension','pilier'] },
+    { id:'p3a',       name:'Attestation 3ème pilier (3a)',    sub:'Versements déductibles',             kw:['3a','troisieme','pilier','prevoyance'] },
+    { id:'p3b',       name:'Attestation 3ème pilier (3b)',    sub:'Valeur de rachat au 31.12',          kw:['3b','assurance','vie','capital','rachat'] },
   ]},
-  {id:'dedpro',icon:'✂️',name:'Déductions professionnelles',items:[
-    {id:'transport',name:'Abonnement TPG / CFF',            sub:'AG, abonnement mensuel ou annuel',    kw:['tpg','cff','transports','ag','abonnement','transport']},
-    {id:'formation',name:'Frais de formation',              sub:'Cours, CAS, MAS, formation pro',      kw:['formation','cours','ecole','universite','cas','mas']},
-    {id:'repas',    name:'Frais de repas hors domicile',    sub:'Si > 30 min de trajet ou cantine',    kw:['repas','restaurant','cantine','dejeuner']},
+  { id:'dedpro', icon:'✂️', name:'Déductions professionnelles', items:[
+    { id:'transport', name:'Abonnement TPG / CFF',            sub:'AG, abonnement mensuel ou annuel',   kw:['tpg','cff','transports','ag','abonnement','transport'] },
+    { id:'formation', name:'Frais de formation',              sub:'Cours, CAS, MAS, formation pro',     kw:['formation','cours','ecole','universite','cas','mas'] },
+    { id:'repas',     name:'Frais de repas hors domicile',    sub:'Si trajet > 30 min ou cantine',      kw:['repas','restaurant','cantine','dejeuner'] },
   ]},
-  {id:'dedpers',icon:'💡',name:'Déductions personnelles',items:[
-    {id:'garde',    name:'Frais de garde d\'enfants',       sub:'Crèche, garderie, maman de jour',     kw:['garde','creche','garderie','maman','babysitter','enfant','nounou']},
-    {id:'pension_a',name:'Pensions alimentaires versées',   sub:'Justificatifs de paiement',           kw:['pension','alimentaire','divorce','enfant']},
-    {id:'dons',     name:'Dons et libéralités',             sub:'Reçus organismes (min. CHF 100)',      kw:['don','liberalite','association','fondation','recu']},
-    {id:'fraismed', name:'Frais médicaux importants',       sub:'> 5% du revenu — quittances',         kw:['medecin','hopital','pharmacie','frais','medicaux','dentiste']},
-    {id:'intdettes',name:'Intérêts sur dettes',             sub:'Intérêts sur prêts perso, leasing',   kw:['interet','dette','pret','leasing','credit']},
+  { id:'dedpers', icon:'💡', name:'Déductions personnelles', items:[
+    { id:'garde',     name:"Frais de garde d'enfants",        sub:'Crèche, garderie, maman de jour',    kw:['garde','creche','garderie','maman','babysitter','enfant','nounou'] },
+    { id:'pension_a', name:'Pensions alimentaires versées',   sub:'Justificatifs de paiement',          kw:['pension','alimentaire','divorce','enfant'] },
+    { id:'dons',      name:'Dons et libéralités',             sub:'Reçus organismes (min. CHF 100)',     kw:['don','liberalite','association','fondation','recu'] },
+    { id:'fraismed',  name:'Frais médicaux importants',       sub:'> 5% du revenu — quittances',        kw:['medecin','hopital','pharmacie','frais','medicaux','dentiste','pharmacie'] },
+    { id:'intdettes', name:'Intérêts sur dettes',             sub:'Intérêts sur prêts perso, leasing',  kw:['interet','dette','pret','leasing','credit'] },
   ]},
-  {id:'immo',icon:'🏠',name:'Immobilier & Emprunts',items:[
-    {id:'hypint',   name:'Attestation intérêts hypothécaires',sub:'Montant annuel intérêts payés',     kw:['hypotheque','hypoth','interet','bancaire','immobilier']},
-    {id:'hypdette', name:'Solde hypothèque au 31.12',       sub:'Montant de la dette à déclarer',      kw:['hypotheque','hypoth','solde','dette']},
-    {id:'valloc',   name:'Valeur locative (si proprio)',     sub:'Montant communiqué par AFC GE',       kw:['valeur','locative','loyer','proprio','afc']},
-    {id:'loyer',    name:'Bail / attestation de loyer',     sub:'Si locataire, déduction applicable',  kw:['loyer','bail','locataire','appartement']},
-    {id:'travaux',  name:'Frais d\'entretien immeuble',     sub:'Factures travaux déductibles',        kw:['travaux','entretien','immeuble','renovation']},
+  { id:'immo', icon:'🏠', name:'Immobilier & Emprunts', items:[
+    { id:'hypint',    name:'Attestation intérêts hypothécaires', sub:'Montant annuel intérêts payés',   kw:['hypotheque','hypoth','interet','bancaire','immobilier'] },
+    { id:'hypdette',  name:'Solde hypothèque au 31.12',       sub:'Montant de la dette à déclarer',     kw:['hypotheque','hypoth','solde','dette'] },
+    { id:'valloc',    name:'Valeur locative (si proprio)',     sub:'Montant communiqué par AFC GE',      kw:['valeur','locative','loyer','proprio','afc'] },
+    { id:'loyer',     name:'Bail / attestation de loyer',     sub:'Si locataire, déduction applicable', kw:['loyer','bail','locataire','appartement'] },
+    { id:'travaux',   name:"Frais d'entretien immeuble",      sub:'Factures travaux déductibles',       kw:['travaux','entretien','immeuble','renovation'] },
   ]},
-  {id:'fortune',icon:'💎',name:'Fortune & Autres',items:[
-    {id:'vehicule', name:'Valeur vénale véhicule',          sub:'Valeur estimative au 31.12.2025',     kw:['voiture','vehicule','auto','moto']},
-    {id:'autredette',name:'Autres dettes',                  sub:'Prêts, leasing — montant restant dû', kw:['dette','pret','leasing','credit','emprunt']},
-    {id:'succession',name:'Héritage / donation reçue',      sub:'Si applicable en 2025',               kw:['heritage','succession','donation','cadeau']},
+  { id:'fortune', icon:'💎', name:'Fortune & Autres', items:[
+    { id:'vehicule',  name:'Valeur vénale véhicule',          sub:'Valeur estimative au 31.12',         kw:['voiture','vehicule','auto','moto'] },
+    { id:'autredette',name:'Autres dettes',                   sub:'Prêts, leasing — montant restant dû',kw:['dette','pret','leasing','credit','emprunt'] },
+    { id:'succession',name:'Héritage / donation reçue',       sub:'Si applicable',                      kw:['heritage','succession','donation','cadeau'] },
   ]},
 ];
 
-// ══ STATE ══
-let S={checked:{},docs:[]};
-let DRIVE={token:null,folderId:null,userEmail:null};
-(function(){try{const d=localStorage.getItem('ige25v4');if(d)S=JSON.parse(d);}catch(e){}})();
-(function(){try{const d=localStorage.getItem('ige25drv');if(d)DRIVE=JSON.parse(d);}catch(e){}})();
-function save(){try{localStorage.setItem('ige25v4',JSON.stringify(S));}catch(e){}}
-function saveDrive(){try{localStorage.setItem('ige25drv',JSON.stringify(DRIVE));}catch(e){}}
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let S = { checked:{}, docs:[] };
+let DRIVE = { token:null, folderId:null, userEmail:null, folderCache:{} };
 
-// ══ UTILS ══
-// Encodage base64 robuste pour les gros fichiers (évite stack overflow avec btoa)
-function uint8ToBase64(uint8arr){
-  let binary='';
-  const chunk=8192;
-  for(let i=0;i<uint8arr.length;i+=chunk){
-    binary+=String.fromCharCode(...uint8arr.subarray(i,i+chunk));
-  }
-  return btoa(binary);
+(function(){ try{ const d=localStorage.getItem('ige_s'); if(d) S=JSON.parse(d); }catch(e){} })();
+(function(){ try{ const d=localStorage.getItem('ige_d'); if(d) DRIVE={folderCache:{},...JSON.parse(d)}; }catch(e){} })();
+
+function save(){ try{ localStorage.setItem('ige_s', JSON.stringify(S)); }catch(e){} }
+function saveDrv(){ try{ localStorage.setItem('ige_d', JSON.stringify(DRIVE)); }catch(e){} }
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function safeName(n){ return n.replace(/[^a-zA-Z0-9 \-_àâéèêëîïôùûç]/g,'_').trim(); }
+
+function uint8ToBase64(arr){
+  let b=''; const c=8192;
+  for(let i=0;i<arr.length;i+=c) b+=String.fromCharCode(...arr.subarray(i,i+c));
+  return btoa(b);
 }
 
-// ══ GOOGLE AUTH ══
-let tokenClient=null;
+// ══════════════════════════════════════════
+// GOOGLE DRIVE AUTH
+// ══════════════════════════════════════════
+let tokenClient = null;
+
 function initGoogleAuth(){
-  if(typeof google==='undefined'){setTimeout(initGoogleAuth,500);return;}
-  tokenClient=google.accounts.oauth2.initTokenClient({
-    client_id:CLIENT_ID, scope:SCOPES,
-    callback:async(resp)=>{
-      if(resp.error){showToast('❌ Connexion annulée');return;}
-      DRIVE.token=resp.access_token;
+  if(typeof google==='undefined'){ setTimeout(initGoogleAuth, 500); return; }
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID, scope: SCOPES,
+    callback: async (resp) => {
+      if(resp.error){ showToast('❌ Connexion annulée'); return; }
+      DRIVE.token = resp.access_token;
       try{
-        const r=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+DRIVE.token}});
-        const info=await r.json(); DRIVE.userEmail=info.email;
+        const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers:{ Authorization:'Bearer '+DRIVE.token } });
+        const info = await r.json();
+        DRIVE.userEmail = info.email;
       }catch(e){}
-      await ensureDriveFolder();
-      saveDrive(); renderDriveBanners();
+      await ensureRootFolder();
+      saveDrv(); updateDrvUI(); renderDrvBanners();
       showToast('✅ Google Drive connecté !');
-      syncPendingDocs();
     }
   });
+  if(DRIVE.token) updateDrvUI();
 }
-function connectDrive(){
-  if(!tokenClient){showToast('Chargement…');setTimeout(connectDrive,600);return;}
-  tokenClient.requestAccessToken({prompt:'consent'});
-}
-function disconnectDrive(){
-  if(DRIVE.token) try{google.accounts.oauth2.revoke(DRIVE.token,()=>{});}catch(e){}
-  DRIVE={token:null,folderId:null,userEmail:null,folderCache:{}};
-  saveDrive(); renderDriveBanners(); showToast('Drive déconnecté');
-}
-function isDriveOk(){return!!DRIVE.token;}
 
-// Cherche ou crée un dossier dans un parent donné
+function drvBtnClick(){
+  if(DRIVE.token) openDrvModal();
+  else{ if(!tokenClient){ showToast('Chargement…'); return; } tokenClient.requestAccessToken({prompt:'consent'}); }
+}
+
+function updateDrvUI(){
+  const btn=document.getElementById('drvBtn');
+  document.getElementById('drvBtnIco').textContent = DRIVE.token ? '✅' : '📂';
+  document.getElementById('drvBtnTxt').textContent = 'Drive';
+  btn.className = 'drvbtn ' + (DRIVE.token ? 'on' : 'off');
+}
+
+function openDrvModal(){
+  document.getElementById('mbody').innerHTML = `
+    <div class="mtitle">📂 Google Drive</div>
+    <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:14px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:4px">✅ Connecté</div>
+      <div style="font-size:12px;color:var(--text2)">${DRIVE.userEmail||'Compte Google'}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">📁 ${FOLDER_NAME}</div>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+      Chaque document ajouté avec un fichier est converti en PDF et sauvegardé automatiquement dans ton Drive.
+    </div>
+    <button class="fbtn2" onclick="disconnectDrive()">🔌 Déconnecter Drive</button>
+    <button class="fbtn2" onclick="closeOverlay()" style="margin-top:6px">Fermer</button>`;
+  openOverlay();
+}
+
+function disconnectDrive(){
+  if(DRIVE.token) try{ google.accounts.oauth2.revoke(DRIVE.token,()=>{}); }catch(e){}
+  DRIVE = { token:null, folderId:null, userEmail:null, folderCache:{} };
+  saveDrv(); updateDrvUI(); renderDrvBanners(); closeOverlay();
+  showToast('Drive déconnecté');
+}
+
+function isDriveOk(){ return !!DRIVE.token; }
+
+// ══════════════════════════════════════════
+// DRIVE FOLDERS
+// ══════════════════════════════════════════
+async function driveAPI(url, method='GET', body=null){
+  const opts = { method, headers:{ Authorization:'Bearer '+DRIVE.token } };
+  if(body){ opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body); }
+  const r = await fetch(url, opts);
+  if(!r.ok){ if(r.status===401){ DRIVE.token=null; saveDrv(); updateDrvUI(); renderDrvBanners(); } throw new Error('Drive API '+r.status); }
+  const ct = r.headers.get('content-type')||'';
+  return ct.includes('json') ? r.json() : r.text();
+}
+
 async function getOrCreateFolder(name, parentId){
-  const q=`name='${name}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`;
-  const r=await driveAPI(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)`);
-  if(r.files&&r.files.length>0) return r.files[0].id;
-  const c=await driveAPI('https://www.googleapis.com/drive/v3/files','POST',{
-    name, mimeType:'application/vnd.google-apps.folder', parents:[parentId]
-  });
+  const q = `name='${name}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`;
+  const r = await driveAPI(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)`);
+  if(r.files && r.files.length>0) return r.files[0].id;
+  const c = await driveAPI('https://www.googleapis.com/drive/v3/files','POST',{ name, mimeType:'application/vnd.google-apps.folder', parents:[parentId] });
   return c.id;
 }
 
-// Crée arborescence : FOLDER_NAME / Catégorie / Item
-// Retourne l'id du sous-dossier final
-async function ensureDriveFolder(catId, itemId){
-  // 1. Dossier racine
-  if(!DRIVE.folderId){
-    const q=`name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
-    const r=await driveAPI(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)`);
-    if(r.files&&r.files.length>0){ DRIVE.folderId=r.files[0].id; }
-    else{
-      const c=await driveAPI('https://www.googleapis.com/drive/v3/files','POST',{
-        name:FOLDER_NAME, mimeType:'application/vnd.google-apps.folder'
-      });
-      DRIVE.folderId=c.id;
-    }
-    saveDrive();
-  }
-  if(!catId) return DRIVE.folderId;
+async function ensureRootFolder(){
+  if(DRIVE.folderId) return DRIVE.folderId;
+  const q = `name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+  const r = await driveAPI(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)`);
+  if(r.files && r.files.length>0){ DRIVE.folderId=r.files[0].id; }
+  else{ const c=await driveAPI('https://www.googleapis.com/drive/v3/files','POST',{ name:FOLDER_NAME, mimeType:'application/vnd.google-apps.folder' }); DRIVE.folderId=c.id; }
+  saveDrv();
+  return DRIVE.folderId;
+}
 
-  // Cache des sous-dossiers
+async function ensureSubFolder(catId, itemId){
+  await ensureRootFolder();
+  if(!catId) return DRIVE.folderId;
   if(!DRIVE.folderCache) DRIVE.folderCache={};
 
-  // 2. Sous-dossier catégorie
   const cat = CL.find(g=>g.id===catId);
   const catName = cat ? cat.icon+' '+cat.name : catId;
   const catKey = 'cat_'+catId;
   if(!DRIVE.folderCache[catKey]){
     DRIVE.folderCache[catKey] = await getOrCreateFolder(catName, DRIVE.folderId);
-    saveDrive();
+    saveDrv();
   }
   if(!itemId) return DRIVE.folderCache[catKey];
 
-  // 3. Sous-dossier item
   let itemName = itemId;
   if(cat){ const it=cat.items.find(i=>i.id===itemId); if(it) itemName=it.name; }
   const itemKey = 'item_'+catId+'_'+itemId;
   if(!DRIVE.folderCache[itemKey]){
     DRIVE.folderCache[itemKey] = await getOrCreateFolder(itemName, DRIVE.folderCache[catKey]);
-    saveDrive();
+    saveDrv();
   }
   return DRIVE.folderCache[itemKey];
 }
 
-async function driveAPI(url,method='GET',body=null){
-  const opts={method,headers:{Authorization:'Bearer '+DRIVE.token}};
-  if(body){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body);}
-  const r=await fetch(url,opts);
-  if(!r.ok){if(r.status===401){DRIVE.token=null;saveDrive();renderDriveBanners();}throw new Error(await r.text());}
-  return r.headers.get('content-type')?.includes('json')?r.json():r.text();
-}
-
-async function uploadToDrive(fileName,mimeType,dataURL,catId,itemId){
-  if(!isDriveOk())return null;
-  const folderId = await ensureDriveFolder(catId, itemId);
-  const b64=dataURL.includes(',')?dataURL.split(',')[1]:dataURL;
-  const boundary='----IGE25boundary';
-  const meta=JSON.stringify({name:fileName,parents:[folderId]});
-  const body=[`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n`,
-               `--${boundary}\r\nContent-Type: ${mimeType}\r\nContent-Transfer-Encoding: base64\r\n\r\n${b64}\r\n`,
-               `--${boundary}--`].join('');
-  const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink',{
-    method:'POST',headers:{Authorization:'Bearer '+DRIVE.token,'Content-Type':`multipart/related; boundary=${boundary}`},body
+async function uploadToDrive(fileName, mimeType, dataURL, catId, itemId){
+  if(!isDriveOk()) return null;
+  const folderId = await ensureSubFolder(catId, itemId);
+  const b64 = dataURL.includes(',') ? dataURL.split(',')[1] : dataURL;
+  const boundary = '----IGEboundary';
+  const meta = JSON.stringify({ name:fileName, parents:[folderId] });
+  const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: ${mimeType}\r\nContent-Transfer-Encoding: base64\r\n\r\n${b64}\r\n--${boundary}--`;
+  const r = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink',{
+    method:'POST', headers:{ Authorization:'Bearer '+DRIVE.token, 'Content-Type':`multipart/related; boundary=${boundary}` }, body
   });
-  if(!r.ok)throw new Error(await r.text());
+  if(!r.ok) throw new Error('Upload failed '+r.status);
   return r.json();
 }
 
-async function syncPendingDocs(){
-  const pending=S.docs.filter(d=>d.fileData&&!d.driveId);
-  if(!pending.length)return;
-  for(const doc of pending){
-    try{
-      const ext=doc.fileType==='application/pdf'?'pdf':doc.fileType==='image/png'?'png':'jpg';
-      const safe=doc.name.replace(/[^a-zA-Z0-9 \-_]/g,'_');
-      const primaryItem4 = doc.linked&&doc.linked.length>0 ? doc.linked[0] : null;
-    const res=await uploadToDrive(`${safe}.${ext}`,doc.fileType,doc.fileData,doc.cat,primaryItem4);
-      if(res){doc.driveId=res.id;doc.driveLink=res.webViewLink;}
-    }catch(e){console.warn('sync fail',doc.name);}
-  }
-  save(); refreshAll();
+async function deleteDriveFile(driveId){
+  if(!isDriveOk() || !driveId) return;
+  try{ await fetch('https://www.googleapis.com/drive/v3/files/'+driveId,{ method:'DELETE', headers:{ Authorization:'Bearer '+DRIVE.token } }); }
+  catch(e){ console.warn('Drive delete failed', e); }
 }
 
-// ══ AUTO-CLASSEMENT ══
-function norm(s){return(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+// ══════════════════════════════════════════
+// PDF HELPER
+// ══════════════════════════════════════════
+async function docToPdfBytes(doc){
+  const { PDFDocument, rgb, StandardFonts } = PDFLib;
+  const pdf = await PDFDocument.create();
+  const font = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const fontR = await pdf.embedFont(StandardFonts.Helvetica);
+
+  if(doc.fileType === 'application/pdf'){
+    const b64 = doc.fileData.split(',')[1];
+    const bytes = Uint8Array.from(atob(b64), c=>c.charCodeAt(0));
+    let src;
+    try{ src = await PDFDocument.load(bytes, {ignoreEncryption:true}); }
+    catch(e){ throw new Error('PDF illisible'); }
+    const pages = await pdf.copyPages(src, src.getPageIndices());
+    pages.forEach(p=>pdf.addPage(p));
+  } else {
+    const b64 = doc.fileData.split(',')[1];
+    const bytes = Uint8Array.from(atob(b64), c=>c.charCodeAt(0));
+    let img;
+    try{ img = doc.fileType==='image/png' ? await pdf.embedPng(bytes) : await pdf.embedJpg(bytes); }
+    catch(e){ try{ img=await pdf.embedJpg(bytes); }catch(e2){ img=await pdf.embedPng(bytes); } }
+    const dims = img.scale(1);
+    const scale = Math.min(535/dims.width, 730/dims.height, 1);
+    const iw=dims.width*scale, ih=dims.height*scale;
+    const p = pdf.addPage([595,842]);
+    p.drawRectangle({x:0,y:0,width:595,height:842,color:rgb(.04,.05,.09)});
+    p.drawRectangle({x:0,y:800,width:595,height:42,color:rgb(.1,.2,.5)});
+    p.drawText(doc.name.substring(0,54), {x:20,y:822,size:13,font,color:rgb(1,1,1)});
+    p.drawText(catName(doc.cat), {x:20,y:806,size:9,font:fontR,color:rgb(.6,.75,1)});
+    p.drawImage(img, {x:(595-iw)/2, y:(760-ih)/2+20, width:iw, height:ih});
+    if(doc.note) p.drawText('Note : '+doc.note.substring(0,80), {x:20,y:16,size:9,font:fontR,color:rgb(.4,.5,.65)});
+  }
+  return pdf.save();
+}
+
+// ══════════════════════════════════════════
+// DEADLINE
+// ══════════════════════════════════════════
+(function(){
+  const filingYear = TAX_YEAR + 1;
+  const now = new Date();
+  const end = new Date(filingYear, 2, 31);
+  const start = new Date(filingYear, 0, 1);
+  const days = Math.max(0, Math.ceil((end-now)/86400000));
+  const pct = Math.min(100, Math.max(0, Math.round(((now-start)/(end-start))*100)));
+  document.getElementById('dlYear').textContent = TAX_YEAR;
+  document.getElementById('dlDays').textContent = days;
+  document.getElementById('dlFill').style.width = pct+'%';
+  document.getElementById('dlPct').textContent = pct+'%';
+  document.getElementById('dlDateText').textContent = '31 mars '+filingYear;
+  document.getElementById('dlStartText').textContent = '1 jan '+filingYear;
+  document.title = 'ImpôtGE';
+})();
+
+// ══════════════════════════════════════════
+// PROGRESS
+// ══════════════════════════════════════════
+function allItems(){ return CL.flatMap(g=>g.items); }
+
+function updateProgress(){
+  const tot = allItems().length;
+  const done = Object.values(S.checked).filter(Boolean).length;
+  const pct = tot ? Math.round(done/tot*100) : 0;
+  document.getElementById('hBadge').textContent = done+' / '+tot;
+  document.getElementById('psPct').textContent = pct+'%';
+  document.getElementById('psFill').style.width = pct+'%';
+  document.getElementById('tbRest').textContent = (tot-done)>0 ? (tot-done)+' restants' : '✓';
+  document.getElementById('tbDocs').textContent = S.docs.length;
+}
+
+// ══════════════════════════════════════════
+// DRIVE BANNERS
+// ══════════════════════════════════════════
+function renderDrvBanners(){
+  const html = isDriveOk()
+    ? `<div class="drv-banner on">
+        <div class="drv-ico">☁️</div>
+        <div class="drv-info">
+          <div class="drv-title">Drive connecté</div>
+          <div class="drv-sub">${DRIVE.userEmail||''} · ${S.docs.filter(d=>d.driveId).length} fichier(s) sur Drive</div>
+        </div>
+        <button class="drv-btn-off" onclick="openDrvModal()">Gérer</button>
+      </div>`
+    : `<div class="drv-banner off">
+        <div class="drv-ico">📂</div>
+        <div class="drv-info">
+          <div class="drv-title">Google Drive</div>
+          <div class="drv-sub">Connecte Drive pour convertir et sauvegarder tes fichiers automatiquement</div>
+        </div>
+        <button class="drv-btn-on" onclick="drvBtnClick()">Connecter</button>
+      </div>`;
+  document.getElementById('drvBannerHome').innerHTML = html;
+  document.getElementById('drvBannerDocs').innerHTML = html;
+}
+
+// ══════════════════════════════════════════
+// AUTO-CLASSEMENT
+// ══════════════════════════════════════════
 function detectMatches(text){
-  const n=norm(text),res=[];
-  for(const g of CL)for(const item of g.items){
-    const sc=item.kw.filter(k=>n.includes(norm(k))).length;
-    if(sc>0)res.push({item,group:g,sc});
+  const n = norm(text);
+  const res = [];
+  for(const g of CL) for(const item of g.items){
+    const sc = item.kw.filter(k=>n.includes(norm(k))).length;
+    if(sc>0) res.push({item, group:g, sc});
   }
   return res.sort((a,b)=>b.sc-a.sc);
 }
 
-// ══ DEADLINE ══
-(function(){
-  const filingYear = TAX_YEAR + 1; // Dépôt = 31 mars de l'année suivante
-  const now = new Date();
-  const end = new Date(filingYear, 2, 31);
-  const start = new Date(filingYear, 0, 1);
-  const days = Math.max(0, Math.ceil((end - now) / 86400000));
-  const pct = Math.min(100, Math.max(0, Math.round(((now - start) / (end - start)) * 100)));
-
-  // Année dans la carte deadline
-  const dlY = document.getElementById('dlYear');
-  if(dlY) dlY.textContent = TAX_YEAR;
-
-  document.getElementById('dlDays').textContent = days;
-  document.getElementById('dlFill').style.width = pct + '%';
-  document.getElementById('dlPct').textContent = pct + '%';
-
-  const dlDateEl = document.getElementById('dlDateText');
-  if(dlDateEl) dlDateEl.textContent = '31 mars ' + filingYear;
-  const dlStartEl = document.getElementById('dlStartText');
-  if(dlStartEl) dlStartEl.textContent = '1 jan ' + filingYear;
-
-  // Badge checklist header
-  document.getElementById('hBadge') // mis à jour par updateProgress
-})();
-
-// ══ PROGRESS ══
-function allItems(){return CL.flatMap(g=>g.items);}
-function updateProgress(){
-  const tot=allItems().length,done=Object.values(S.checked).filter(Boolean).length;
-  const pct=tot?Math.round(done/tot*100):0;
-  document.getElementById('hBadge').textContent=done+' / '+tot;
-  document.getElementById('psPct').textContent=pct+'%';
-  document.getElementById('psFill').style.width=pct+'%';
-  document.getElementById('tbRest').textContent=(tot-done)>0?(tot-done)+' restants':'✓';
-  document.getElementById('tbDocs').textContent=S.docs.length;
-}
-
-// ══ DRIVE BANNERS ══
-function driveBannerHTML(){
-  if(isDriveOk()){
-    const synced=S.docs.filter(d=>d.driveId).length;
-    const pending=S.docs.filter(d=>d.fileData&&!d.driveId).length;
-    return `<div class="drive-banner on">
-      <div class="drive-banner-ico">☁️</div>
-      <div class="drive-banner-info">
-        <div class="drive-banner-title"><span class="sync-dot ok"></span> Drive connecté</div>
-        <div class="drive-banner-sub">${DRIVE.userEmail||''} · ${synced} synchronisé(s)${pending>0?' · <b>'+pending+' en attente</b>':''}</div>
-      </div>
-      <button class="drive-btn-off" onclick="disconnectDrive()">Déconnecter</button>
-    </div>`;
-  }
-  return `<div class="drive-banner off">
-    <div class="drive-banner-ico">📂</div>
-    <div class="drive-banner-info">
-      <div class="drive-banner-title">Google Drive</div>
-      <div class="drive-banner-sub">Connecte Drive pour sauvegarder tes fichiers de façon permanente</div>
-    </div>
-    <button class="drive-btn-on" onclick="connectDrive()">Connecter</button>
-  </div>`;
-}
-function renderDriveBanners(){
-  const h=driveBannerHTML();
-  document.getElementById('driveBannerHome').innerHTML=h;
-  document.getElementById('driveBannerDocs').innerHTML=h;
-}
-
-// ══ CHECKLIST ══
-function clGroupHTML(g,compact){
-  const done=g.items.filter(i=>S.checked[i.id]).length,allDone=done===g.items.length;
+// ══════════════════════════════════════════
+// CHECKLIST RENDER
+// ══════════════════════════════════════════
+function clGroupHTML(g, compact){
+  const done = g.items.filter(i=>S.checked[i.id]).length;
+  const allDone = done===g.items.length;
   return `<div class="cl-group">
     <div class="cl-gh" onclick="toggleGrp(this)">
-      <span class="cl-gi">${g.icon}</span><span class="cl-gn">${g.name}</span>
+      <span class="cl-gi">${g.icon}</span>
+      <span class="cl-gn">${g.name}</span>
       <span class="cl-gs ${allDone?'done':''}">${done}/${g.items.length}</span>
       <span class="cl-chev ${compact?'':'open'}">›</span>
     </div>
     <div class="cl-body ${compact?'':'open'}">${g.items.map(clItemHTML).join('')}</div>
   </div>`;
 }
+
 function clItemHTML(item){
-  const done=!!S.checked[item.id],linked=S.docs.some(d=>d.linked&&d.linked.includes(item.id));
+  const done = !!S.checked[item.id];
+  const n = S.docs.filter(d=>d.linked&&d.linked.includes(item.id)).length;
+  const tag = n===0 ? '<span class="tag-todo">à lier</span>'
+    : n===1 ? '<span class="tag-scan">📎 1 doc</span>'
+    : `<span class="tag-scan">📎 ${n} docs</span>`;
   return `<div class="cl-item ${done?'chk':''}" onclick="toggleItem('${item.id}')">
     <div class="cl-cb ${done?'chk':''}">${done?'✓':''}</div>
     <div class="cl-ii"><div class="cl-in">${item.name}</div><div class="cl-is">${item.sub}</div></div>
-    ${linked?'<span class="tag-scan">📎 lié</span>':'<span class="tag-todo">à lier</span>'}
+    ${tag}
   </div>`;
 }
-function renderFullCL(){document.getElementById('fullCL').innerHTML=CL.map(g=>clGroupHTML(g,false)).join('');}
-function renderHomeCL(){
-  const inc=CL.filter(g=>g.items.some(i=>!S.checked[i.id])).slice(0,3);
-  document.getElementById('homeChecklist').innerHTML=inc.length===0
-    ?`<div class="empty"><div class="ei">🎉</div><h3>Checklist complète !</h3><p>Tous tes documents sont prêts.</p></div>`
-    :inc.map(g=>clGroupHTML(g,true)).join('');
-}
-function toggleGrp(hdr){
-  const body=hdr.nextElementSibling,chev=hdr.querySelector('.cl-chev');
-  const o=body.classList.toggle('open');chev.classList.toggle('open',o);
-}
-function toggleItem(id){S.checked[id]=!S.checked[id];save();refreshAll();showToast(S.checked[id]?'✅ Coché':'Décoché');}
 
-// ══ DOCS ══
-const CC={revenus:'#3b82f6',banques:'#eab308',assurances:'#6366f1',dedpro:'#22c55e',dedpers:'#f97316',immo:'#ec4899',fortune:'#a855f7'};
-const catIcon=id=>(CL.find(g=>g.id===id)||{icon:'📄'}).icon;
-const catName=id=>(CL.find(g=>g.id===id)||{name:'Divers'}).name;
-const catColor=id=>CC[id]||'#4a5a7a';
+function renderFullCL(){ document.getElementById('fullCL').innerHTML = CL.map(g=>clGroupHTML(g,false)).join(''); }
+
+function renderHomeCL(){
+  const inc = CL.filter(g=>g.items.some(i=>!S.checked[i.id])).slice(0,3);
+  document.getElementById('homeCL').innerHTML = inc.length===0
+    ? `<div class="empty"><div class="ei">🎉</div><h3>Checklist complète !</h3><p>Tous tes documents sont prêts.</p></div>`
+    : inc.map(g=>clGroupHTML(g,true)).join('');
+}
+
+function toggleGrp(hdr){
+  const body = hdr.nextElementSibling, chev = hdr.querySelector('.cl-chev');
+  const o = body.classList.toggle('open'); chev.classList.toggle('open',o);
+}
+
+function toggleItem(id){
+  S.checked[id] = !S.checked[id]; save(); refreshAll();
+  showToast(S.checked[id] ? '✅ Coché' : 'Décoché');
+}
+
+// ══════════════════════════════════════════
+// DOCS RENDER
+// ══════════════════════════════════════════
+const CC = { revenus:'#3b82f6', banques:'#eab308', assurances:'#6366f1', dedpro:'#22c55e', dedpers:'#f97316', immo:'#ec4899', fortune:'#a855f7' };
+const catIcon = id => (CL.find(g=>g.id===id)||{icon:'📄'}).icon;
+const catName = id => (CL.find(g=>g.id===id)||{name:'Divers'}).name;
+const catColor = id => CC[id]||'#4a5a7a';
 
 function docDot(doc){
-  if(doc.driveId)return`<div class="dot dot-g" title="☁️ PDF sur Drive"></div>`;
-  if(doc.fileData)return`<div class="dot dot-b" title="📄 PDF local"></div>`;
-  return`<div class="dot dot-e" title="Pas de fichier"></div>`;
+  if(doc.driveId) return '<div class="dot dot-g" title="☁️ PDF sur Drive"></div>';
+  if(doc.fileData) return '<div class="dot dot-b" title="📄 PDF local"></div>';
+  return '<div class="dot dot-e" title="Pas de fichier"></div>';
 }
+
 function docCardHTML(doc){
-  const color=catColor(doc.cat);
-  const d=new Date(doc.date).toLocaleDateString('fr-CH',{day:'numeric',month:'short',year:'numeric'});
+  const color = catColor(doc.cat);
+  const d = new Date(doc.date).toLocaleDateString('fr-CH',{day:'numeric',month:'short',year:'numeric'});
   return `<div class="doc-card" onclick="openDoc('${doc.id}')">
     <div class="doc-ico" style="background:${color}22">${catIcon(doc.cat)}</div>
     <div class="doc-inf"><div class="doc-nm">${doc.name}</div><div class="doc-mt">${catName(doc.cat)} · ${d}</div></div>
     ${docDot(doc)}<span class="doc-arr">›</span>
   </div>`;
 }
+
 function renderDocs(){
-  const el=document.getElementById('docsList');
-  if(!S.docs.length){el.innerHTML=`<div class="empty"><div class="ei">📭</div><h3>Aucun document</h3><p>Appuie sur <strong>＋</strong> pour ajouter<br>un document fiscal.</p></div>`;return;}
-  el.innerHTML=[...S.docs].sort((a,b)=>b.date-a.date).map(docCardHTML).join('');
-}
-function renderHomeDocs(){
-  const el=document.getElementById('homeDocs');
-  const r=[...S.docs].sort((a,b)=>b.date-a.date).slice(0,4);
-  el.innerHTML=r.length?r.map(docCardHTML).join(''):`<div class="empty" style="padding:18px"><div class="ei">📎</div><p>Appuie sur <strong>＋</strong> pour commencer</p></div>`;
-}
-
-// ══ PDF BANNER ══
-// Banners PDF supprimés — export géré à l'enregistrement
-function renderPdfBanners(){}
-
-// ══ OPEN DOC ══
-function openDoc(id){
-  const doc=S.docs.find(d=>d.id===id);if(!doc)return;
-  const d=new Date(doc.date).toLocaleDateString('fr-CH',{day:'numeric',month:'long',year:'numeric'});
-  const lnames=(doc.linked||[]).map(lid=>{for(const g of CL){const it=g.items.find(i=>i.id===lid);if(it)return it.name;}return lid;});
-  let st='';
-  if(doc.driveId){
-    st=`<div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:8px">
-      ☁️ Synchronisé sur Google Drive
-      ${doc.driveLink?`<a href="${doc.driveLink}" target="_blank" style="margin-left:auto;color:var(--accent);font-size:11px;text-decoration:none">Ouvrir ›</a>`:''}
-    </div>`;
-  }else if(doc.fileData){
-    st=`<div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:var(--accent)">
-      📱 Fichier local — ${isDriveOk()?`<span style="cursor:pointer;text-decoration:underline" onclick="uploadSingle('${id}')">Uploader sur Drive</span>`:'Connecte Drive pour synchroniser'}
-    </div>`;
-  }else{
-    st=`<div style="background:var(--bg3);border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:var(--text2)">⚠️ Aucun fichier joint — non inclus dans l'export PDF</div>`;
+  const el = document.getElementById('docsList');
+  if(!S.docs.length){
+    el.innerHTML = `<div class="empty"><div class="ei">📭</div><h3>Aucun document</h3><p>Appuie sur <strong>＋</strong> pour ajouter<br>un document fiscal.</p></div>`;
+    return;
   }
-  document.getElementById('mbody').innerHTML=`
+  el.innerHTML = [...S.docs].sort((a,b)=>b.date-a.date).map(docCardHTML).join('');
+}
+
+function renderHomeDocs(){
+  const r = [...S.docs].sort((a,b)=>b.date-a.date).slice(0,4);
+  document.getElementById('homeDocs').innerHTML = r.length
+    ? r.map(docCardHTML).join('')
+    : `<div class="empty" style="padding:18px"><div class="ei">📎</div><p>Appuie sur <strong>＋</strong> pour commencer</p></div>`;
+}
+
+// ══════════════════════════════════════════
+// OPEN DOC
+// ══════════════════════════════════════════
+function openDoc(id){
+  const doc = S.docs.find(d=>d.id===id); if(!doc) return;
+  const d = new Date(doc.date).toLocaleDateString('fr-CH',{day:'numeric',month:'long',year:'numeric'});
+  const lnames = (doc.linked||[]).map(lid=>{
+    for(const g of CL){ const it=g.items.find(i=>i.id===lid); if(it) return it.name; } return lid;
+  });
+  const st = doc.driveId
+    ? `<div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:8px">
+        ☁️ PDF sauvegardé sur Google Drive
+        ${doc.driveLink ? `<a href="${doc.driveLink}" target="_blank" style="margin-left:auto;color:var(--accent);font-size:11px;text-decoration:none">Ouvrir ›</a>` : ''}
+       </div>`
+    : doc.fileData
+    ? `<div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:var(--accent)">
+        📄 PDF en local — ${isDriveOk() ? `<span style="cursor:pointer;text-decoration:underline" onclick="reuploadDoc('${id}')">Envoyer sur Drive</span>` : 'connecte Drive pour sauvegarder'}
+       </div>`
+    : `<div style="background:var(--bg3);border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:var(--text2)">⚠️ Aucun fichier joint</div>`;
+
+  document.getElementById('mbody').innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
       <div style="width:46px;height:46px;border-radius:13px;background:${catColor(doc.cat)}22;display:flex;align-items:center;justify-content:center;font-size:22px">${catIcon(doc.cat)}</div>
-      <div><div class="mtitle" style="margin-bottom:2px;font-size:16px">${doc.name}</div><div style="font-size:12px;color:var(--text2)">${catName(doc.cat)} · ${d}</div></div>
+      <div>
+        <div class="mtitle" style="margin-bottom:2px;font-size:16px">${doc.name}</div>
+        <div style="font-size:12px;color:var(--text2)">${catName(doc.cat)} · ${d}</div>
+      </div>
     </div>
-    ${doc.note?`<div style="background:var(--bg3);border-radius:10px;padding:10px 13px;font-size:13px;color:var(--text2);margin-bottom:12px">📝 ${doc.note}</div>`:''}
+    ${doc.note ? `<div style="background:var(--bg3);border-radius:10px;padding:10px 13px;font-size:13px;color:var(--text2);margin-bottom:12px">📝 ${doc.note}</div>` : ''}
     ${st}
-    ${lnames.length?`<div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:10px;padding:10px 13px;margin-bottom:12px">
-      <div style="font-size:10px;font-weight:600;color:var(--green);margin-bottom:6px">ITEMS COCHÉS AUTO</div>
-      ${lnames.map(n=>`<div style="font-size:12px;color:var(--text2);margin-bottom:2px">✓ ${n}</div>`).join('')}
-    </div>`:''}
+    ${lnames.length ? `<div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:10px;padding:10px 13px;margin-bottom:12px">
+      <div style="font-size:10px;font-weight:600;color:var(--green);margin-bottom:6px">ITEMS LIÉS</div>
+      ${lnames.map(n=>`<div style="font-size:12px;color:var(--text2);margin-bottom:2px">📎 ${n}</div>`).join('')}
+    </div>` : ''}
     <button class="fbtn2" onclick="editDoc('${doc.id}')">✏️ Modifier</button>
     <button class="fbtn-del" onclick="deleteDoc('${doc.id}')">🗑 Supprimer</button>
     <button class="fbtn2" onclick="closeOverlay()" style="margin-top:4px">Fermer</button>`;
   openOverlay();
 }
 
-async function uploadSingle(id){
-  const doc=S.docs.find(d=>d.id===id);if(!doc||!doc.fileData)return;
-  closeOverlay();
-  const ext=doc.fileType==='application/pdf'?'pdf':doc.fileType==='image/png'?'png':'jpg';
-  const safe=doc.name.replace(/[^a-zA-Z0-9 \-_]/g,'_');
-  showUpOv(`Envoi : ${doc.name}`);
+async function reuploadDoc(id){
+  const doc = S.docs.find(d=>d.id===id); if(!doc||!doc.fileData) return;
+  showUpOv('Envoi sur Drive…');
   try{
-    const primaryItem4 = doc.linked&&doc.linked.length>0 ? doc.linked[0] : null;
-    const res=await uploadToDrive(`${safe}.${ext}`,doc.fileType,doc.fileData,doc.cat,primaryItem4);
-    if(res){doc.driveId=res.id;doc.driveLink=res.webViewLink;}
-    save();hideUpOv();refreshAll();showToast('☁️ Synchronisé sur Drive !');
-  }catch(e){hideUpOv();showToast('❌ Erreur : '+e.message);}
+    const primItem = doc.linked&&doc.linked.length>0 ? doc.linked[0] : null;
+    const fname = safeName(doc.name)+'.pdf';
+    const res = await uploadToDrive(fname, 'application/pdf', doc.fileData, doc.cat, primItem);
+    if(res){ doc.driveId=res.id; doc.driveLink=res.webViewLink; doc.fileData=null; }
+    save(); hideUpOv(); closeOverlay(); refreshAll();
+    showToast('☁️ Envoyé sur Drive !');
+  }catch(e){ hideUpOv(); showToast('❌ Erreur : '+e.message); }
 }
 
-function editDoc(id){closeOverlay();setTimeout(()=>openAddModal(id),200);}
+function editDoc(id){ closeOverlay(); setTimeout(()=>openAddModal(id), 200); }
+
 async function deleteDoc(id){
-  const doc=S.docs.find(d=>d.id===id);
-  if(!doc)return;
-  // Supprimer du Drive si présent
-  if(doc.driveId && isDriveOk()){
-    try{
-      await fetch('https://www.googleapis.com/drive/v3/files/'+doc.driveId,{
-        method:'DELETE',
-        headers:{Authorization:'Bearer '+DRIVE.token}
-      });
-      showToast('🗑 Supprimé localement et sur Drive');
-    }catch(e){
-      console.warn('Drive delete failed',e);
-      showToast('🗑 Supprimé localement (Drive: erreur)');
-    }
-  } else {
-    showToast('Document supprimé');
-  }
-  if(doc.linked)doc.linked.forEach(lid=>{delete S.checked[lid];});
-  S.docs=S.docs.filter(d=>d.id!==id);
-  save();closeOverlay();refreshAll();
+  const doc = S.docs.find(d=>d.id===id); if(!doc) return;
+  await deleteDriveFile(doc.driveId);
+  if(doc.linked) doc.linked.forEach(lid=>{ delete S.checked[lid]; });
+  S.docs = S.docs.filter(d=>d.id!==id);
+  save(); closeOverlay(); refreshAll();
+  showToast(doc.driveId ? '🗑 Supprimé localement et sur Drive' : 'Document supprimé');
 }
 
-// ══ ADD/EDIT MODAL ══
-let pendingFile=null,scanSel={};
+// ══════════════════════════════════════════
+// ADD / EDIT MODAL
+// ══════════════════════════════════════════
+let pendingFile = null, scanSel = {};
+
 function openAddModal(editId){
-  pendingFile=null;scanSel={};
-  const ed=editId?S.docs.find(d=>d.id===editId):null;
-  document.getElementById('mbody').innerHTML=`
-    <div class="mtitle">${ed?'✏️ Modifier':'➕ Ajouter un document'}</div>
+  pendingFile = null; scanSel = {};
+  const ed = editId ? S.docs.find(d=>d.id===editId) : null;
+  document.getElementById('mbody').innerHTML = `
+    <div class="mtitle">${ed ? '✏️ Modifier' : '➕ Ajouter un document'}</div>
     <div class="fgroup">
-      <label class="flabel">Fichier — photo, scan ou PDF existant</label>
+      <label class="flabel">Fichier — photo, scan ou PDF</label>
       <div id="fzw">
-        <div class="file-zone"><input type="file" id="fi" accept="image/*,application/pdf" onchange="onFile(event)">
-          <div class="fz-ico">📎</div><div class="fz-lbl">Appuyer pour choisir</div>
+        <div class="file-zone">
+          <input type="file" id="fi" accept="image/*,application/pdf" onchange="onFile(event)">
+          <div class="fz-ico">📎</div>
+          <div class="fz-lbl">Appuyer pour choisir</div>
           <div class="fz-sub">📷 Photo · 🖼 Image · 📄 PDF</div>
         </div>
       </div>
     </div>
     <div class="fgroup">
       <label class="flabel">Nom du document</label>
-      <input class="finput" id="dName" type="text" placeholder="ex. Certificat de salaire 2025" value="${ed?ed.name:''}" oninput="onNameInput()">
+      <input class="finput" id="dName" type="text" placeholder="ex. Certificat de salaire" value="${ed?ed.name:''}" oninput="onNameInput()">
     </div>
     <div class="fgroup">
       <label class="flabel">Catégorie (auto-détectée)</label>
-      <select class="finput" id="dCat">${CL.map(g=>`<option value="${g.id}"${ed&&ed.cat===g.id?' selected':''}>${g.icon} ${g.name}</option>`).join('')}</select>
+      <select class="finput" id="dCat">
+        ${CL.map(g=>`<option value="${g.id}"${ed&&ed.cat===g.id?' selected':''}>${g.icon} ${g.name}</option>`).join('')}
+      </select>
     </div>
     <div id="matchBox"></div>
     <div class="fgroup">
@@ -676,42 +793,45 @@ function openAddModal(editId){
     </div>
     <button class="fbtn" onclick="confirmAdd(${ed?`'${ed.id}'`:'null'})">${ed?'💾 Mettre à jour':'💾 Enregistrer'}</button>
     <button class="fbtn2" onclick="closeOverlay()">Annuler</button>`;
-  if(ed&&ed.fileData){pendingFile={name:ed.name,type:ed.fileType,dataURL:ed.fileData};showFP(ed.name);}
-  if(ed)setTimeout(onNameInput,60);
+  if(ed && ed.fileData){ pendingFile={name:ed.name,type:ed.fileType,dataURL:ed.fileData}; showFP(ed.name); }
+  if(ed) setTimeout(onNameInput, 60);
   openOverlay();
 }
 
 function onFile(e){
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    pendingFile={name:file.name,type:file.type,dataURL:ev.target.result};
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingFile = { name:file.name, type:file.type, dataURL:ev.target.result };
     showFP(file.name);
-    const el=document.getElementById('dName');
-    if(el&&!el.value)el.value=file.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
+    const el = document.getElementById('dName');
+    if(el && !el.value) el.value = file.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
     onNameInput();
   };
   reader.readAsDataURL(file);
 }
+
 function showFP(name){
-  const w=document.getElementById('fzw');if(!w)return;
-  const ext=name.split('.').pop().toLowerCase();
-  const ico=ext==='pdf'?'📄':['jpg','jpeg','png','heic','webp'].includes(ext)?'🖼️':'📎';
-  w.innerHTML=`<div class="file-prev"><span class="fp-ico">${ico}</span><span class="fp-nm">${name}</span><button class="fp-rm" onclick="rmFile()">✕</button></div>`;
+  const w = document.getElementById('fzw'); if(!w) return;
+  const ext = name.split('.').pop().toLowerCase();
+  const ico = ext==='pdf' ? '📄' : ['jpg','jpeg','png','heic','webp'].includes(ext) ? '🖼️' : '📎';
+  w.innerHTML = `<div class="file-prev"><span class="fp-ico">${ico}</span><span class="fp-nm">${name}</span><button class="fp-rm" onclick="rmFile()">✕</button></div>`;
 }
+
 function rmFile(){
-  pendingFile=null;
-  const w=document.getElementById('fzw');if(!w)return;
-  w.innerHTML=`<div class="file-zone"><input type="file" id="fi" accept="image/*,application/pdf" onchange="onFile(event)"><div class="fz-ico">📎</div><div class="fz-lbl">Appuyer pour choisir</div><div class="fz-sub">📷 Photo · 🖼 Image · 📄 PDF</div></div>`;
+  pendingFile = null;
+  const w = document.getElementById('fzw'); if(!w) return;
+  w.innerHTML = `<div class="file-zone"><input type="file" id="fi" accept="image/*,application/pdf" onchange="onFile(event)"><div class="fz-ico">📎</div><div class="fz-lbl">Appuyer pour choisir</div><div class="fz-sub">📷 Photo · 🖼 Image · 📄 PDF</div></div>`;
 }
+
 function onNameInput(){
-  const name=document.getElementById('dName')?.value||'';
-  const matches=detectMatches(name+(pendingFile?' '+pendingFile.name:''));
-  if(!matches.length){document.getElementById('matchBox').innerHTML='';return;}
-  const top=matches.slice(0,5);
-  top.forEach(m=>{if(m.sc>=1&&!(m.item.id in scanSel))scanSel[m.item.id]=true;});
-  if(top[0])document.getElementById('dCat').value=top[0].group.id;
-  document.getElementById('matchBox').innerHTML=`<div class="match-wrap">
+  const name = document.getElementById('dName')?.value||'';
+  const matches = detectMatches(name + (pendingFile?' '+pendingFile.name:''));
+  if(!matches.length){ document.getElementById('matchBox').innerHTML=''; return; }
+  const top = matches.slice(0,5);
+  top.forEach(m=>{ if(m.sc>=1 && !(m.item.id in scanSel)) scanSel[m.item.id]=true; });
+  if(top[0]) document.getElementById('dCat').value = top[0].group.id;
+  document.getElementById('matchBox').innerHTML = `<div class="match-wrap">
     <div class="match-hd">✨ Items détectés — ajuste si besoin</div>
     ${top.map(m=>`<div class="match-row" onclick="toggleMatch('${m.item.id}')">
       <div class="match-cb ${scanSel[m.item.id]?'sel':''}" id="mcb-${m.item.id}">${scanSel[m.item.id]?'✓':''}</div>
@@ -719,99 +839,142 @@ function onNameInput(){
     </div>`).join('')}
   </div>`;
 }
+
 function toggleMatch(id){
-  scanSel[id]=!scanSel[id];
-  const cb=document.getElementById('mcb-'+id);
-  if(cb){cb.classList.toggle('sel',scanSel[id]);cb.textContent=scanSel[id]?'✓':'';}
+  scanSel[id] = !scanSel[id];
+  const cb = document.getElementById('mcb-'+id);
+  if(cb){ cb.classList.toggle('sel',scanSel[id]); cb.textContent=scanSel[id]?'✓':''; }
 }
 
 async function confirmAdd(editId){
-  const name=(document.getElementById('dName')?.value||'').trim();
-  if(!name){showToast('⚠️ Saisis un nom');return;}
-  const cat=document.getElementById('dCat')?.value||'revenus';
-  const note=document.getElementById('dNote')?.value?.trim()||'';
-  const linked=Object.keys(scanSel).filter(k=>scanSel[k]);
-  const isEdit=editId&&editId!=='null';
+  const name = (document.getElementById('dName')?.value||'').trim();
+  if(!name){ showToast('⚠️ Saisis un nom'); return; }
+  const cat = document.getElementById('dCat')?.value||'revenus';
+  const note = document.getElementById('dNote')?.value?.trim()||'';
+  const linked = Object.keys(scanSel).filter(k=>scanSel[k]);
+  const isEdit = editId && editId!=='null';
   closeOverlay();
 
-  // Sans fichier : enregistrement simple en local uniquement
+  // Sans fichier → enregistrement simple en local
   if(!pendingFile){
     if(isEdit){
-      const doc=S.docs.find(d=>d.id===editId);
-      if(doc){if(doc.linked)doc.linked.forEach(lid=>{delete S.checked[lid];});Object.assign(doc,{name,cat,note,linked});}
-    }else{
-      S.docs.unshift({id:Date.now().toString(),name,cat,note,date:Date.now(),linked,fileData:null,fileType:null,driveId:null,driveLink:null});
+      const doc = S.docs.find(d=>d.id===editId);
+      if(doc){ if(doc.linked) doc.linked.forEach(lid=>{delete S.checked[lid];}); Object.assign(doc,{name,cat,note,linked}); }
+    } else {
+      S.docs.unshift({ id:Date.now().toString(), name, cat, note, date:Date.now(), linked, fileData:null, fileType:null, driveId:null, driveLink:null });
     }
-    save();refreshAll();showToast('✅ Document enregistré');
+    save(); refreshAll(); showToast('✅ Document enregistré');
     return;
   }
 
-  // Avec fichier : convertir en PDF puis envoyer sur Drive
+  // Avec fichier → convertir en PDF → Drive
   showUpOv('Conversion en PDF…');
   try{
-    // Créer objet temporaire pour docToPdfBytes
-    const tempDoc={name,cat,note,fileData:pendingFile.dataURL,fileType:pendingFile.type};
-    const pdfBytes=await docToPdfBytes(tempDoc);
-    const pdfB64=uint8ToBase64(new Uint8Array(pdfBytes));
-    const pdfDataURL='data:application/pdf;base64,'+pdfB64;
+    const tempDoc = { name, cat, note, fileData:pendingFile.dataURL, fileType:pendingFile.type };
+    const pdfBytes = await docToPdfBytes(tempDoc);
+    const pdfB64 = uint8ToBase64(new Uint8Array(pdfBytes));
+    const pdfDataURL = 'data:application/pdf;base64,'+pdfB64;
 
-    let driveId=null,driveLink=null;
+    let driveId=null, driveLink=null;
     if(isDriveOk()){
-      document.getElementById('upOvTitle').textContent='Envoi sur Drive…';
-      const fname=safeName(name)+'.pdf';
-      const primItem=linked.length>0?linked[0]:null;
+      document.getElementById('upOvTitle').textContent = 'Envoi sur Drive…';
+      const fname = safeName(name)+'.pdf';
+      const primItem = linked.length>0 ? linked[0] : null;
       try{
-        const res=await uploadToDrive(fname,'application/pdf',pdfDataURL,cat,primItem);
-        if(res){driveId=res.id;driveLink=res.webViewLink;}
-      }catch(e){console.warn('Drive upload fail',e);}
+        const res = await uploadToDrive(fname, 'application/pdf', pdfDataURL, cat, primItem);
+        if(res){ driveId=res.id; driveLink=res.webViewLink; }
+      }catch(e){ console.warn('Drive upload fail',e); }
     }
 
-    // Si Drive OK → pas besoin de garder le fichier en local (localStorage léger)
-    // Si pas de Drive → garder le PDF localement
-    const docObj={
-      id:isEdit?editId:Date.now().toString(),
-      name,cat,note,date:Date.now(),linked,
-      fileData:driveId?null:pdfDataURL,
-      fileType:'application/pdf',
-      driveId,driveLink
+    const docObj = {
+      id: isEdit ? editId : Date.now().toString(),
+      name, cat, note, date:Date.now(), linked,
+      fileData: driveId ? null : pdfDataURL,  // local seulement si pas de Drive
+      fileType: 'application/pdf',
+      driveId, driveLink
     };
 
     if(isEdit){
-      const doc=S.docs.find(d=>d.id===editId);
-      if(doc){
-        if(doc.linked)doc.linked.forEach(lid=>{delete S.checked[lid];});
-        Object.assign(doc,{name,cat,note,linked,fileData:docObj.fileData,fileType:'application/pdf',driveId,driveLink});
-      }
-    }else{
+      const doc = S.docs.find(d=>d.id===editId);
+      if(doc){ if(doc.linked) doc.linked.forEach(lid=>{delete S.checked[lid];}); Object.assign(doc,{name,cat,note,linked,fileData:docObj.fileData,fileType:'application/pdf',driveId,driveLink}); }
+    } else {
       S.docs.unshift(docObj);
     }
 
-    hideUpOv();save();refreshAll();
-    showToast(driveId?'☁️ PDF envoyé sur Drive !':'📄 PDF enregistré en local');
+    hideUpOv(); save(); refreshAll();
+    showToast(driveId ? '☁️ PDF envoyé sur Drive !' : '📄 PDF enregistré en local');
 
   }catch(err){
-    console.error('Erreur conversion PDF:',err);
+    console.error('PDF error:', err);
     hideUpOv();
-    // Fallback : garder fichier brut en local
-    const docFallback={
-      id:isEdit?editId:Date.now().toString(),
-      name,cat,note,date:Date.now(),linked,
-      fileData:pendingFile.dataURL,fileType:pendingFile.type,
-      driveId:null,driveLink:null
-    };
+    // Fallback : garder fichier brut
+    const fb = { id:isEdit?editId:Date.now().toString(), name, cat, note, date:Date.now(), linked, fileData:pendingFile.dataURL, fileType:pendingFile.type, driveId:null, driveLink:null };
     if(isEdit){
-      const doc=S.docs.find(d=>d.id===editId);
-      if(doc){if(doc.linked)doc.linked.forEach(lid=>{delete S.checked[lid];});Object.assign(doc,{name,cat,note,linked,fileData:pendingFile.dataURL,fileType:pendingFile.type});}
-    }else{
-      S.docs.unshift(docFallback);
-    }
-    save();refreshAll();
-    showToast('⚠️ Erreur PDF — fichier conservé en local');
+      const doc = S.docs.find(d=>d.id===editId);
+      if(doc){ if(doc.linked) doc.linked.forEach(lid=>{delete S.checked[lid];}); Object.assign(doc,{name,cat,note,linked,fileData:pendingFile.dataURL,fileType:pendingFile.type}); }
+    } else { S.docs.unshift(fb); }
+    save(); refreshAll();
+    showToast('⚠️ Erreur PDF — fichier brut conservé en local');
   }
 }
 
-  const storageStatus=doc.driveId
-    ?`<div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:var(--green)">☁️ PDF sauvegardé sur Google Drive</div>`
-    :doc.fileData
-    ?`<div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:var(--accent)">📄 PDF en local — connecte Drive pour sauvegarder</div>`
-    :`<div style="background:var(--bg3);border-radius:10px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:var(--text2)">⚠️ Aucun fichier joint</div>`;
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function goTab(t){
+  ['home','cl','docs'].forEach(v=>{
+    document.getElementById('view-'+v).classList.toggle('active', v===t);
+    document.getElementById('tab-'+v).classList.toggle('active', v===t);
+    document.getElementById('ni-'+v).classList.toggle('active', v===t);
+  });
+  if(t==='cl') renderFullCL();
+  if(t==='docs') renderDocs();
+}
+
+// ══════════════════════════════════════════
+// OVERLAY
+// ══════════════════════════════════════════
+function openOverlay(){ document.getElementById('overlay').classList.add('open'); }
+function closeOverlay(){ document.getElementById('overlay').classList.remove('open'); }
+function overlayBg(e){ if(e.target===document.getElementById('overlay')) closeOverlay(); }
+
+// ══════════════════════════════════════════
+// UPLOAD OVERLAY
+// ══════════════════════════════════════════
+function showUpOv(title){
+  document.getElementById('upOvTitle').textContent = title;
+  document.getElementById('upOvSub').textContent = 'En cours…';
+  document.getElementById('upOv').classList.add('show');
+}
+function hideUpOv(){ document.getElementById('upOv').classList.remove('show'); }
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════════
+// REFRESH ALL
+// ══════════════════════════════════════════
+function refreshAll(){
+  updateProgress();
+  renderHomeCL();
+  renderHomeDocs();
+  renderDrvBanners();
+  const av = document.querySelector('.view.active');
+  if(av?.id==='view-cl') renderFullCL();
+  if(av?.id==='view-docs') renderDocs();
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+initGoogleAuth();
+refreshAll();
+</script>
+</body>
+</html>
