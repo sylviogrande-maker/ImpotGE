@@ -171,7 +171,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 <body>
 <div class="hdr">
   <div class="hrow">
-    <div class="htitle">Impôts <em>GE 2025</em></div>
+    <div class="htitle">Impôts <em>GE <span id="yearTitle"></span></em></div>
     <div class="hbadge" id="hBadge">0 / 0</div>
   </div>
   <div class="ps-row"><span class="ps-lbl">Checklist complétée</span><span class="ps-pct" id="psPct">0%</span></div>
@@ -191,9 +191,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
         <div><div class="dl-badge">Déclaration fiscale</div><div class="dl-name">Genève 2025</div></div>
         <div class="dl-cnt"><div class="dl-num" id="dlDays">—</div><div class="dl-unit">jours</div></div>
       </div>
-      <div class="dl-date">Date limite : <strong>31 mars 2026</strong></div>
+      <div class="dl-date">Date limite : <strong id="dlDateText">31 mars 2026</strong></div>
       <div class="dl-pb"><div class="dl-pf" id="dlFill" style="width:0%"></div></div>
-      <div class="dl-pl"><span>1 jan 2026</span><span id="dlPct">0%</span></div>
+      <div class="dl-pl"><span id="dlStartText">1 jan 2026</span><span id="dlPct">0%</span></div>
     </div>
     <div class="slabel">Avancement checklist</div>
     <div id="homeChecklist"></div>
@@ -235,7 +235,15 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 // ══ CONFIG ══
 const CLIENT_ID='674952255050-p83d3rim4jdv4a29q33b0kk3q1t035hh.apps.googleusercontent.com';
 const SCOPES='https://www.googleapis.com/auth/drive.file';
-const FOLDER_NAME='Impôts GE 2025';
+const TAX_YEAR = (function(){
+  const now = new Date();
+  // L'année fiscale = année en cours si on est avant le 31 mars, sinon année en cours - 1
+  // Ex: en jan/fev/mars 2026 → déclaration 2025 ; en avril 2026 → déclaration 2026
+  const y = now.getFullYear();
+  const m = now.getMonth(); // 0=jan
+  return (m < 3) ? y - 1 : y; // avant avril = année précédente
+})();
+const FOLDER_NAME = 'Justificatifs impôts ' + TAX_YEAR;
 
 // ══ CHECKLIST ══
 const CL=[
@@ -295,6 +303,17 @@ let DRIVE={token:null,folderId:null,userEmail:null};
 function save(){try{localStorage.setItem('ige25v4',JSON.stringify(S));}catch(e){}}
 function saveDrive(){try{localStorage.setItem('ige25drv',JSON.stringify(DRIVE));}catch(e){}}
 
+// ══ UTILS ══
+// Encodage base64 robuste pour les gros fichiers (évite stack overflow avec btoa)
+function uint8ToBase64(uint8arr){
+  let binary='';
+  const chunk=8192;
+  for(let i=0;i<uint8arr.length;i+=chunk){
+    binary+=String.fromCharCode(...uint8arr.subarray(i,i+chunk));
+  }
+  return btoa(binary);
+}
+
 // ══ GOOGLE AUTH ══
 let tokenClient=null;
 function initGoogleAuth(){
@@ -321,19 +340,62 @@ function connectDrive(){
 }
 function disconnectDrive(){
   if(DRIVE.token) try{google.accounts.oauth2.revoke(DRIVE.token,()=>{});}catch(e){}
-  DRIVE={token:null,folderId:null,userEmail:null};
+  DRIVE={token:null,folderId:null,userEmail:null,folderCache:{}};
   saveDrive(); renderDriveBanners(); showToast('Drive déconnecté');
 }
 function isDriveOk(){return!!DRIVE.token;}
 
-async function ensureDriveFolder(){
-  const q=`name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+// Cherche ou crée un dossier dans un parent donné
+async function getOrCreateFolder(name, parentId){
+  const q=`name='${name}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`;
   const r=await driveAPI(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)`);
-  if(r.files&&r.files.length>0){DRIVE.folderId=r.files[0].id;}
-  else{
-    const c=await driveAPI('https://www.googleapis.com/drive/v3/files','POST',{name:FOLDER_NAME,mimeType:'application/vnd.google-apps.folder'});
-    DRIVE.folderId=c.id;
+  if(r.files&&r.files.length>0) return r.files[0].id;
+  const c=await driveAPI('https://www.googleapis.com/drive/v3/files','POST',{
+    name, mimeType:'application/vnd.google-apps.folder', parents:[parentId]
+  });
+  return c.id;
+}
+
+// Crée arborescence : FOLDER_NAME / Catégorie / Item
+// Retourne l'id du sous-dossier final
+async function ensureDriveFolder(catId, itemId){
+  // 1. Dossier racine
+  if(!DRIVE.folderId){
+    const q=`name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+    const r=await driveAPI(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)`);
+    if(r.files&&r.files.length>0){ DRIVE.folderId=r.files[0].id; }
+    else{
+      const c=await driveAPI('https://www.googleapis.com/drive/v3/files','POST',{
+        name:FOLDER_NAME, mimeType:'application/vnd.google-apps.folder'
+      });
+      DRIVE.folderId=c.id;
+    }
+    saveDrive();
   }
+  if(!catId) return DRIVE.folderId;
+
+  // Cache des sous-dossiers
+  if(!DRIVE.folderCache) DRIVE.folderCache={};
+
+  // 2. Sous-dossier catégorie
+  const cat = CL.find(g=>g.id===catId);
+  const catName = cat ? cat.icon+' '+cat.name : catId;
+  const catKey = 'cat_'+catId;
+  if(!DRIVE.folderCache[catKey]){
+    DRIVE.folderCache[catKey] = await getOrCreateFolder(catName, DRIVE.folderId);
+    saveDrive();
+  }
+  if(!itemId) return DRIVE.folderCache[catKey];
+
+  // 3. Sous-dossier item
+  let itemName = itemId;
+  if(cat){ const it=cat.items.find(i=>i.id===itemId); if(it) itemName=it.name; }
+  const itemKey = 'item_'+catId+'_'+itemId;
+  if(!DRIVE.folderCache[itemKey]){
+    DRIVE.folderCache[itemKey] = await getOrCreateFolder(itemName, DRIVE.folderCache[catKey]);
+    saveDrive();
+  }
+  return DRIVE.folderCache[itemKey];
 }
 
 async function driveAPI(url,method='GET',body=null){
@@ -344,12 +406,12 @@ async function driveAPI(url,method='GET',body=null){
   return r.headers.get('content-type')?.includes('json')?r.json():r.text();
 }
 
-async function uploadToDrive(fileName,mimeType,dataURL){
+async function uploadToDrive(fileName,mimeType,dataURL,catId,itemId){
   if(!isDriveOk())return null;
-  if(!DRIVE.folderId)await ensureDriveFolder();
+  const folderId = await ensureDriveFolder(catId, itemId);
   const b64=dataURL.includes(',')?dataURL.split(',')[1]:dataURL;
   const boundary='----IGE25boundary';
-  const meta=JSON.stringify({name:fileName,parents:[DRIVE.folderId]});
+  const meta=JSON.stringify({name:fileName,parents:[folderId]});
   const body=[`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n`,
                `--${boundary}\r\nContent-Type: ${mimeType}\r\nContent-Transfer-Encoding: base64\r\n\r\n${b64}\r\n`,
                `--${boundary}--`].join('');
@@ -367,7 +429,8 @@ async function syncPendingDocs(){
     try{
       const ext=doc.fileType==='application/pdf'?'pdf':doc.fileType==='image/png'?'png':'jpg';
       const safe=doc.name.replace(/[^a-zA-Z0-9 \-_]/g,'_');
-      const res=await uploadToDrive(`${safe}.${ext}`,doc.fileType,doc.fileData);
+      const primaryItem4 = doc.linked&&doc.linked.length>0 ? doc.linked[0] : null;
+    const res=await uploadToDrive(`${safe}.${ext}`,doc.fileType,doc.fileData,doc.cat,primaryItem4);
       if(res){doc.driveId=res.id;doc.driveLink=res.webViewLink;}
     }catch(e){console.warn('sync fail',doc.name);}
   }
@@ -387,12 +450,27 @@ function detectMatches(text){
 
 // ══ DEADLINE ══
 (function(){
-  const now=new Date(),end=new Date(2026,2,31),start=new Date(2026,0,1);
+  // Titre dynamique
+  const yt = document.getElementById('yearTitle');
+  if(yt) yt.textContent = TAX_YEAR;
+  // Échéance = 31 mars de l'année de dépôt (TAX_YEAR + 1)
+  const filingYear = TAX_YEAR + 1;
+  const now=new Date();
+  const end=new Date(filingYear,2,31); // 31 mars
+  const start=new Date(filingYear,0,1); // 1 jan
   const days=Math.max(0,Math.ceil((end-now)/86400000));
   const pct=Math.min(100,Math.max(0,Math.round(((now-start)/(end-start))*100)));
   document.getElementById('dlDays').textContent=days;
   document.getElementById('dlFill').style.width=pct+'%';
   document.getElementById('dlPct').textContent=pct+'%';
+  // Mettre à jour la date affichée
+  const dlDateEl=document.getElementById('dlDateText');
+  if(dlDateEl) dlDateEl.textContent='31 mars '+filingYear;
+  // Mettre à jour les labels de la barre
+  const dlStartEl=document.getElementById('dlStartText');
+  if(dlStartEl) dlStartEl.textContent='1 jan '+filingYear;
+  // Titre app
+  document.title='Impôts GE '+TAX_YEAR;
 })();
 
 // ══ PROGRESS ══
@@ -561,18 +639,35 @@ async function uploadSingle(id){
   const safe=doc.name.replace(/[^a-zA-Z0-9 \-_]/g,'_');
   showUpOv(`Envoi : ${doc.name}`);
   try{
-    const res=await uploadToDrive(`${safe}.${ext}`,doc.fileType,doc.fileData);
+    const primaryItem4 = doc.linked&&doc.linked.length>0 ? doc.linked[0] : null;
+    const res=await uploadToDrive(`${safe}.${ext}`,doc.fileType,doc.fileData,doc.cat,primaryItem4);
     if(res){doc.driveId=res.id;doc.driveLink=res.webViewLink;}
     save();hideUpOv();refreshAll();showToast('☁️ Synchronisé sur Drive !');
   }catch(e){hideUpOv();showToast('❌ Erreur : '+e.message);}
 }
 
 function editDoc(id){closeOverlay();setTimeout(()=>openAddModal(id),200);}
-function deleteDoc(id){
+async function deleteDoc(id){
   const doc=S.docs.find(d=>d.id===id);
-  if(doc?.linked)doc.linked.forEach(lid=>{delete S.checked[lid];});
+  if(!doc)return;
+  // Supprimer du Drive si présent
+  if(doc.driveId && isDriveOk()){
+    try{
+      await fetch('https://www.googleapis.com/drive/v3/files/'+doc.driveId,{
+        method:'DELETE',
+        headers:{Authorization:'Bearer '+DRIVE.token}
+      });
+      showToast('🗑 Supprimé localement et sur Drive');
+    }catch(e){
+      console.warn('Drive delete failed',e);
+      showToast('🗑 Supprimé localement (Drive: erreur)');
+    }
+  } else {
+    showToast('Document supprimé');
+  }
+  if(doc.linked)doc.linked.forEach(lid=>{delete S.checked[lid];});
   S.docs=S.docs.filter(d=>d.id!==id);
-  save();closeOverlay();refreshAll();showToast('Document supprimé');
+  save();closeOverlay();refreshAll();
 }
 
 // ══ ADD/EDIT MODAL ══
@@ -670,7 +765,8 @@ async function confirmAdd(editId){
     const safe=name.replace(/[^a-zA-Z0-9 \-_]/g,'_');
     showUpOv(`Envoi : ${name}`);
     try{
-      const res=await uploadToDrive(`${safe}.${ext}`,pendingFile.type,pendingFile.dataURL);
+      const primItem = Object.keys(scanSel).filter(k=>scanSel[k])[0]||null;
+      const res=await uploadToDrive(`${safe}.${ext}`,pendingFile.type,pendingFile.dataURL,cat,primItem);
       if(res){driveId=res.id;driveLink=res.webViewLink;}
       hideUpOv();
     }catch(e){hideUpOv();showToast('⚠️ Upload échoué — sauvegardé en local');}
@@ -688,9 +784,9 @@ async function confirmAdd(editId){
     S.docs.unshift({id:Date.now().toString(),name,cat,note,date:Date.now(),linked,
       fileData:pendingFile?.dataURL||null,fileType:pendingFile?.type||null,driveId,driveLink});
   }
-  linked.forEach(id=>{S.checked[id]=true;});
+  // Pas d'auto-cochage — l'utilisateur gère manuellement la checklist
   save();refreshAll();
-  showToast(driveId?`☁️ Sauvegardé sur Drive · ${linked.length} coché(s)`:linked.length>0?`✅ Enregistré · ${linked.length} coché(s)`:'✅ Document enregistré');
+  showToast(driveId?'☁️ Sauvegardé sur Drive !':'✅ Document enregistré');
 }
 
 // ══ UPLOAD OV ══
@@ -770,8 +866,9 @@ async function exportPDF(mode){
           // Upload individuel sur Drive
           if(isDriveOk()){
             try{
-              const b64=btoa(String.fromCharCode(...new Uint8Array(bytes)));
-              await uploadToDrive(fname,'application/pdf','data:application/pdf;base64,'+b64);
+              const pdfB64sep=uint8ToBase64(new Uint8Array(bytes));
+              const primSep=doc.linked&&doc.linked.length>0?doc.linked[0]:null;
+              await uploadToDrive(fname,'application/pdf','data:application/pdf;base64,'+pdfB64sep,doc.cat,primSep);
             }catch(e){console.warn('Drive upload fail',doc.name,e);}
           }
           await new Promise(r=>setTimeout(r,600)); // délai entre téléchargements
@@ -794,7 +891,7 @@ async function exportPDF(mode){
       const cp=merged.addPage([595,842]);
       cp.drawRectangle({x:0,y:0,width:595,height:842,color:rgb(0.027,0.035,0.059)});
       cp.drawRectangle({x:0,y:762,width:595,height:80,color:rgb(0.14,0.31,0.74)});
-      cp.drawText('DÉCLARATION FISCALE 2025',{x:30,y:810,size:20,font,color:rgb(1,1,1)});
+      cp.drawText('DÉCLARATION FISCALE '+TAX_YEAR,{x:30,y:810,size:20,font,color:rgb(1,1,1)});
       cp.drawText('Genève — Dossier personnel',{x:30,y:788,size:12,font:fontReg,color:rgb(0.8,0.88,1)});
       const today=new Date().toLocaleDateString('fr-CH',{day:'numeric',month:'long',year:'numeric'});
       cp.drawText('Généré le '+today,{x:30,y:750,size:10,font:fontReg,color:rgb(0.4,0.5,0.65)});
@@ -845,7 +942,7 @@ async function exportPDF(mode){
       await new Promise(r=>setTimeout(r,60));
       const pdfBytes=await merged.save();
       fill.style.width='100%';
-      dlPdf(pdfBytes,'Impots_GE_2025_'+dateStr+'.pdf');
+      dlPdf(pdfBytes,'Impots_GE_'+TAX_YEAR+'_'+dateStr+'.pdf');
       if(isDriveOk()){
         try{
           sub.textContent='Envoi sur Drive…';
@@ -858,7 +955,7 @@ async function exportPDF(mode){
       title.textContent='PDF généré !';
       sub.textContent=sorted.length+' docs'+(isDriveOk()?' · sauvegardé sur Drive ☁️':'');
       setTimeout(()=>{ov.classList.remove('show');ico.textContent='⚙️';ico.className='pdf-ov-ico spin';},2400);
-      showToast('✅ PDF fusionné — '+sorted.length+' documents'+(isDriveOk()?' + Drive':''));
+      showToast('✅ PDF fusionné '+TAX_YEAR+' — '+sorted.length+' documents'+(isDriveOk()?' + Drive':''));
     }
   }catch(err){
     console.error(err);ov.classList.remove('show');showToast('❌ Erreur PDF');
