@@ -504,13 +504,27 @@ async function replaceDay(day){
     var newShop=Object.assign({},state.plan.shopping_list);
     newShop[shopKey]=newList;
 
-    save('plan',Object.assign({},state.plan,{meals:newMeals,shopping_list:newShop}));
+    // Construire le nouveau plan complet
+    var newPlan = {
+      generated_at: state.plan.generated_at,
+      meals: newMeals,
+      shopping_list: {
+        semaine1: week===1 ? newList : (state.plan.shopping_list.semaine1||[]),
+        semaine2: week===2 ? newList : (state.plan.shopping_list.semaine2||[])
+      }
+    };
+    save('plan', newPlan);
+
     // Effacer les cases cochées de la semaine modifiée
-    var newChecked=Object.assign({},state.checked);
-    Object.keys(newChecked).forEach(function(k){if(k.startsWith(week+'-'))delete newChecked[k];});
-    save('checked',newChecked);
-  }catch(e){alert('Erreur: '+e.message);}
+    var newChecked={};
+    Object.keys(state.checked).forEach(function(k){
+      if(!k.startsWith(week+'-'))newChecked[k]=state.checked[k];
+    });
+    save('checked', newChecked);
+
+  }catch(e){alert('Erreur lors du remplacement: '+e.message);}
   renderPlanning();
+  if(document.querySelector('#screen-shopping.active')) renderShopping();
 }
 
 // Reconstruit la liste de courses depuis les ingrédients des repas (sans API)
