@@ -23,11 +23,14 @@
   --purple:#7B5EA7; --radius:14px;
   --st:env(safe-area-inset-top,0px); --sb:env(safe-area-inset-bottom,0px);
 }
+
+/* RESET — exactement comme ImpotGE */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-img,svg{max-width:100%;height:auto}
-html,body{background:var(--bg);color:var(--text);font-family:'Nunito',system-ui,sans-serif;min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden;max-width:100%}
-.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:16px 18px;box-shadow:0 2px 12px rgba(0,0,0,.04);width:100%;box-sizing:border-box}
-.btn{border:none;border-radius:12px;cursor:pointer;font-weight:700;font-family:'Nunito',sans-serif;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;max-width:100%;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--text);font-family:'Nunito',system-ui,sans-serif;min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* UTILS */
+.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:16px 18px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.btn{border:none;border-radius:12px;cursor:pointer;font-weight:700;font-family:'Nunito',sans-serif;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .btn-primary{background:var(--primary);color:#fff;padding:14px 24px;font-size:15px}
 .btn-primary:active{transform:scale(.97)}
 .btn-ghost{background:transparent;color:var(--primary);border:2px solid var(--primary);padding:12px 20px;font-size:14px}
@@ -40,8 +43,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Nunito',system-ui,
 input[type=text],input[type=password]{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;font-family:'Nunito',sans-serif;outline:none;background:#fff;color:var(--text)}
 input:focus{border-color:var(--primary)}
 
-/* SCREENS */
-.screen{display:none;overflow-x:hidden;max-width:100vw}
+/* SCREENS — comme .view dans ImpotGE */
+.screen{display:none}
 .screen.active{display:block}
 #screen-loading.active{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;gap:20px;text-align:center;padding:32px}
 #screen-onboarding.active{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:24px}
@@ -61,7 +64,7 @@ input:focus{border-color:var(--primary)}
 .progress-seg.done{background:var(--primary)}
 .ob-wrap{width:100%;max-width:440px}
 
-/* NAV */
+/* BOTTOM NAV — comme .bnav dans ImpotGE */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#fff;border-top:1px solid var(--border);padding:8px 0;padding-bottom:calc(8px + var(--sb));display:flex;justify-content:space-around}
 .nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 20px;background:none;border:none;color:var(--text-muted);font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .nav-btn .nav-icon{font-size:22px;pointer-events:none}
@@ -69,24 +72,24 @@ input:focus{border-color:var(--primary)}
 .nav-btn.active{color:var(--primary)}
 
 /* HOME */
-.home-hero{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);padding:calc(var(--st) + 20px) 20px 32px;text-align:center;flex-shrink:0;width:100%;box-sizing:border-box}
+.home-hero{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);padding:calc(var(--st) + 24px) 20px 36px;text-align:center}
 .home-hero h1{font-size:26px;font-weight:900;color:#fff;margin:6px 0 4px}
 .home-hero p{color:rgba(255,255,255,.8);font-size:14px}
-.home-content{padding:0 14px calc(72px + var(--sb));margin-top:-16px;display:flex;flex-direction:column;gap:10px;width:100%;box-sizing:border-box}
-.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
-.quick-card{text-align:center;padding:22px 12px;cursor:pointer}
+.home-content{padding:0 16px calc(80px + var(--sb));margin-top:-16px;display:flex;flex-direction:column;gap:12px}
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.quick-card{text-align:center;padding:20px 12px;cursor:pointer}
 
-/* PLANNING */
-.page-header{background:#fff;border-bottom:1px solid var(--border);padding:calc(var(--st) + 10px) 14px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;width:100%;box-sizing:border-box}
-.page-header h2{font-size:18px;font-weight:900}
-.page-content{padding:12px 14px calc(80px + var(--sb));display:flex;flex-direction:column;gap:10px}
-.week-label{padding:8px 4px;font-weight:900;font-size:14px;color:var(--primary);text-transform:uppercase}
+/* PLANNING & PAGES */
+.page-header{background:#fff;border-bottom:1px solid var(--border);padding:calc(var(--st) + 12px) 16px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.page-header h2{font-size:17px;font-weight:900}
+.page-content{padding:14px 16px calc(80px + var(--sb));display:flex;flex-direction:column;gap:10px}
+.week-label{padding:6px 4px;font-weight:900;font-size:13px;color:var(--primary);text-transform:uppercase}
 .meal-card{padding:14px 16px}
 
 /* RECIPE */
-.recipe-hero{background:linear-gradient(135deg,var(--primary),var(--primary-light));padding:calc(var(--st) + 20px) 22px 36px}
+.recipe-hero{background:linear-gradient(135deg,var(--primary),var(--primary-light));padding:calc(var(--st) + 20px) 20px 32px}
 .recipe-hero .back-btn{background:rgba(255,255,255,.2);border:none;border-radius:10px;padding:8px 14px;color:#fff;font-weight:800;cursor:pointer;margin-bottom:16px;font-family:'Nunito',sans-serif;font-size:14px}
-.recipe-content{padding:14px 14px calc(80px + var(--sb));display:flex;flex-direction:column;gap:12px}
+.recipe-content{padding:16px 16px calc(80px + var(--sb));display:flex;flex-direction:column;gap:12px}
 .step-row{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start}
 .step-row:last-child{border:none}
 .step-num{width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0}
@@ -110,6 +113,9 @@ input:focus{border-color:var(--primary)}
 /* API KEY */
 .apikey-wrap{width:100%;max-width:420px}
 .apikey-info{background:#EEF7F3;border-radius:12px;padding:14px 16px;font-size:13px;color:var(--primary);margin-top:14px;line-height:1.6}
+
+/* MAIN — comme .main dans ImpotGE, centrage max 600px */
+.main-content{max-width:600px;margin:0 auto}
 </style>
 </head>
 <body>
@@ -483,12 +489,24 @@ async function replaceDay(day){
   var btn=document.getElementById('replace-btn-'+day);
   if(btn){btn.textContent='⏳';btn.disabled=true;}
   try{
+    // Appel 1 : nouveau repas
     var p=state.profile;var portions=p.adults+(p.lunches?p.adults:0);
     var prompt='Génère UN repas différent de "'+(meal?meal.name:'')+'". Profil: '+p.adults+' adultes, équipements: '+p.equipment.join(', ')+', max '+p.maxTime+'min, '+portions+' portions.\n'
       +'UNIQUEMENT JSON valide:\n{"meal":{"day":'+day+',"name":"...","time":"...","method":"...","emoji":"...","protein":"...","complexity":"simple","portions":'+portions+',"ingredients":[{"item":"...","qty":"...","category":"..."}],"steps":["..."],"tip":"...","emergency":false}}';
     var result=await callClaude(prompt,1200);
     var newMeals=state.plan.meals.map(function(m){return m.day===day?Object.assign({},result.meal,{day:day}):m;});
-    save('plan',Object.assign({},state.plan,{meals:newMeals}));
+
+    // Appel 2 : régénérer la liste de courses de la semaine concernée
+    var week=day<=7?1:2;
+    var weekMeals=newMeals.filter(function(m){return week===1?m.day<=7:m.day>7;});
+    if(btn)btn.textContent='🛒';
+    var shopResult=await callClaude(buildPromptShopping(week,weekMeals),2000);
+    var newShop=Object.assign({},state.plan.shopping_list);
+    var shopKey='semaine'+week;
+    newShop[shopKey]=(shopResult.shopping_list&&shopResult.shopping_list[shopKey])||newShop[shopKey];
+
+    save('plan',Object.assign({},state.plan,{meals:newMeals,shopping_list:newShop}));
+    save('checked',Object.assign({},state.checked));
   }catch(e){alert('Erreur: '+e.message);}
   renderPlanning();
 }
