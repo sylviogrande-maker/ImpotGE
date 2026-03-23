@@ -492,23 +492,41 @@ async function replaceDay(day){
     // Appel 1 : nouveau repas
     var p=state.profile;var portions=p.adults+(p.lunches?p.adults:0);
     var prompt='Génère UN repas différent de "'+(meal?meal.name:'')+'". Profil: '+p.adults+' adultes, équipements: '+p.equipment.join(', ')+', max '+p.maxTime+'min, '+portions+' portions.\n'
-      +'UNIQUEMENT JSON valide:\n{"meal":{"day":'+day+',"name":"...","time":"...","method":"...","emoji":"...","protein":"...","complexity":"simple","portions":'+portions+',"ingredients":[{"item":"...","qty":"...","category":"..."}],"steps":["..."],"tip":"...","emergency":false}}';
-    var result=await callClaude(prompt,1200);
+      +'UNIQUEMENT JSON valide:\n{"meal":{"day":'+day+',"name":"...","time":"...","method":"...","emoji":"...","protein":"...","complexity":"simple","portions":'+portions+',"ingredients":[{"item":"Poulet","qty":"600g","category":"viandes"},{"item":"Riz","qty":"300g","category":"epicerie"},{"item":"Brocoli","qty":"300g","category":"legumes"}],"steps":["..."],"tip":"...","emergency":false}}';
+    var result=await callClaude(prompt,1500);
     var newMeals=state.plan.meals.map(function(m){return m.day===day?Object.assign({},result.meal,{day:day}):m;});
 
-    // Appel 2 : régénérer la liste de courses de la semaine concernée
+    // Reconstruire la liste de courses directement depuis les ingrédients — sans appel API
     var week=day<=7?1:2;
-    var weekMeals=newMeals.filter(function(m){return week===1?m.day<=7:m.day>7;});
-    if(btn)btn.textContent='🛒';
-    var shopResult=await callClaude(buildPromptShopping(week,weekMeals),2000);
-    var newShop=Object.assign({},state.plan.shopping_list);
     var shopKey='semaine'+week;
-    newShop[shopKey]=(shopResult.shopping_list&&shopResult.shopping_list[shopKey])||newShop[shopKey];
+    var weekMeals=newMeals.filter(function(m){return week===1?m.day<=7:m.day>7;});
+    var newList=rebuildShoppingList(weekMeals);
+    var newShop=Object.assign({},state.plan.shopping_list);
+    newShop[shopKey]=newList;
 
     save('plan',Object.assign({},state.plan,{meals:newMeals,shopping_list:newShop}));
-    save('checked',Object.assign({},state.checked));
+    // Effacer les cases cochées de la semaine modifiée
+    var newChecked=Object.assign({},state.checked);
+    Object.keys(newChecked).forEach(function(k){if(k.startsWith(week+'-'))delete newChecked[k];});
+    save('checked',newChecked);
   }catch(e){alert('Erreur: '+e.message);}
   renderPlanning();
+}
+
+// Reconstruit la liste de courses depuis les ingrédients des repas (sans API)
+function rebuildShoppingList(meals){
+  var merged={};
+  meals.forEach(function(meal){
+    (meal.ingredients||[]).forEach(function(ing){
+      var key=(ing.item||'').toLowerCase().trim();
+      if(!key)return;
+      if(!merged[key]){
+        merged[key]={item:ing.item,qty:ing.qty,category:ing.category||'autre'};
+      }
+      // Si même ingrédient, garder la plus grande quantité
+    });
+  });
+  return Object.values(merged);
 }
 
 async function openEmergency(){
