@@ -427,6 +427,7 @@ function buildPromptWeek(weekNum, startDay, endDay, avoid, profile){
     +', '+portions+' portions/repas'
     +(avoid?'\nNe pas répéter: '+avoid:'')
     +'\n'+(hasAF?'Priorité Air Fryer/vapeur. ':'')
+    +'ROTATION PROTÉINES OBLIGATOIRE sur les 7 jours: exactement 2 repas poulet, 1 repas boeuf ou veau, 1 repas poisson, 1 repas végétarien, 1 repas dinde ou porc, 1 repas libre (agneau, fruits de mer, etc.). Ne pas faire 2 poulets consécutifs.\n'
     +'1 protéine + 1 féculent + 1-2 légumes. Max 3 étapes courtes.\n'
     +'JSON valide UNIQUEMENT, jours '+days.join(',')+' :\n'
     +'{"meals":[{"day":'+startDay+',"name":"Nom","time":"20 min","method":"Air Fryer","emoji":"🍗","protein":"poulet","complexity":"simple","portions":'+portions+',"ingredients":[{"item":"Poulet","qty":"600g","category":"viandes"},{"item":"Riz","qty":"300g","category":"epicerie"}],"steps":["Assaisonner","Cuire 20min Air Fryer","Servir"],"tip":"Astuce courte","emergency":false}]}';
@@ -572,7 +573,12 @@ function renderHome(){
   var nextGen=new Date(genDate.getTime()+14*24*60*60*1000);
   var daysLeft=Math.max(0,Math.round((nextGen-new Date())/(24*60*60*1000)));
   document.getElementById('home-status').textContent=daysLeft>0?'Renouvellement dans '+daysLeft+' jour'+(daysLeft>1?'s':''):'🔄 Renouvellement recommandé !';
-  var dayNum=(Math.floor((new Date()-genDate)/(24*60*60*1000))%14)+1;
+  // Calculer le jour correct basé sur la date calendaire (pas les heures écoulées)
+  var today=new Date();
+  var todayMidnight=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+  var genMidnight=new Date(genDate.getFullYear(),genDate.getMonth(),genDate.getDate());
+  var daysDiff=Math.floor((todayMidnight-genMidnight)/(24*60*60*1000));
+  var dayNum=(daysDiff%14)+1;
   var todayMeal=plan.meals?plan.meals.filter(function(m){return m.day===dayNum;})[0]:null;
   var tonightEl=document.getElementById('home-tonight');
   if(todayMeal){
