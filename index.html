@@ -428,7 +428,13 @@ function buildPromptWeek(weekNum, startDay, endDay, avoid, profile){
     +(avoid?'\nNe pas répéter: '+avoid:'')
     +'\n'+(hasAF?'Priorité Air Fryer/vapeur. ':'')
     +'ROTATION PROTÉINES OBLIGATOIRE sur les 7 jours: exactement 2 repas poulet, 1 repas boeuf ou veau, 1 repas poisson, 1 repas végétarien, 1 repas dinde ou porc, 1 repas libre (agneau, fruits de mer, etc.). Ne pas faire 2 poulets consécutifs.\n'
-    +'1 protéine + 1 féculent + 1-2 légumes. Max 3 étapes courtes.\n'
+    +'1 protéine + 1 féculent + 1-2 légumes par repas.\n'
+    +'RECETTES DÉTAILLÉES OBLIGATOIRE:\n'
+    +'- Toujours inclure une sauce ou marinade (ex: sauce yaourt-citron, marinade soja-miel, sauce tomate épicée, vinaigrette moutarde, crème légère aux herbes, sauce teriyaki, chermoula, etc.)\n'
+    +'- 4 à 6 étapes claires et précises avec temps de cuisson exacts\n'
+    +'- Indiquer les assaisonnements précis (quantités sel, poivre, épices)\n'
+    +'- Mentionner la température et durée de cuisson\n'
+    +'- Astuce de chef utile et concrète\n'
     +'JSON valide UNIQUEMENT, jours '+days.join(',')+' :\n'
     +'{"meals":[{"day":'+startDay+',"name":"Nom","time":"20 min","method":"Air Fryer","emoji":"🍗","protein":"poulet","complexity":"simple","portions":'+portions+',"ingredients":[{"item":"Poulet","qty":"600g","category":"viandes"},{"item":"Riz","qty":"300g","category":"epicerie"}],"steps":["Assaisonner","Cuire 20min Air Fryer","Servir"],"tip":"Astuce courte","emergency":false}]}';
 }
@@ -453,13 +459,13 @@ async function generatePlan(){
   try{
     // Appel 1 : semaine 1 (jours 1-7)
     document.getElementById('loading-msg').textContent='🍽️ Semaine 1 en cours...';
-    var r1=await callClaude(buildPromptWeek(1,1,7,'',state.profile),3500);
+    var r1=await callClaude(buildPromptWeek(1,1,7,'',state.profile),5000);
     var meals1=r1.meals||[];
 
     // Appel 2 : semaine 2 (jours 8-14)
     document.getElementById('loading-msg').textContent='🍽️ Semaine 2 en cours...';
     var avoid2=meals1.map(function(m){return m.name;}).join(', ');
-    var r2=await callClaude(buildPromptWeek(2,8,14,avoid2,state.profile),3500);
+    var r2=await callClaude(buildPromptWeek(2,8,14,avoid2,state.profile),5000);
     var meals2=r2.meals||[];
 
     // Appel 3 : courses semaine 1
@@ -494,7 +500,7 @@ async function replaceDay(day){
     var p=state.profile;var portions=p.adults+(p.lunches?p.adults:0);
     var prompt='Génère UN repas différent de "'+(meal?meal.name:'')+'". Profil: '+p.adults+' adultes, équipements: '+p.equipment.join(', ')+', max '+p.maxTime+'min, '+portions+' portions.\n'
       +'UNIQUEMENT JSON valide:\n{"meal":{"day":'+day+',"name":"...","time":"...","method":"...","emoji":"...","protein":"...","complexity":"simple","portions":'+portions+',"ingredients":[{"item":"Poulet","qty":"600g","category":"viandes"},{"item":"Riz","qty":"300g","category":"epicerie"},{"item":"Brocoli","qty":"300g","category":"legumes"}],"steps":["..."],"tip":"...","emergency":false}}';
-    var result=await callClaude(prompt,1500);
+    var result=await callClaude(prompt,2000);
     var newMeals=state.plan.meals.map(function(m){return m.day===day?Object.assign({},result.meal,{day:day}):m;});
 
     // Reconstruire la liste de courses directement depuis les ingrédients — sans appel API
